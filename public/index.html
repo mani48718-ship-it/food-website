@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+</body>
+<head>
+    <title>Manikanta Food Delivery</title>
+    <style>
+        body{
+            font-family: Arial;
+            background:#f5f5f5;
+            text-align:center;
+        }
+        header{
+            background:#ff4d4d;
+            color:white;
+            padding:15px;
+            font-size:28px;
+        }
+        .food{
+            background:white;
+            width:250px;
+            padding:15px;
+            margin:20px;
+            display:inline-block;
+            border-radius:10px;
+            box-shadow:0 0 10px #ccc;
+        }
+        button{
+            background:#28a745;
+            color:white;
+            border:none;
+            padding:10px;
+            border-radius:5px;
+            cursor:pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>🍔 Manikanta Food Delivery</header>
+
+<h2>Place Your Order</h2>
+
+<input id="name" placeholder="Your Name"><br><br> <input id="phone" placeholder="Phone Number"><br><br> <input id="address" placeholder="Delivery Address"><br><br>
+
+<div class="food">
+    <h2>Pizza</h2>
+    <p>Price: ₹199</p>
+    <button onclick="orderFood('Pizza')">Order Now</button>
+</div>
+
+<div class="food">
+    <h2>Burger</h2>
+    <p>Price: ₹99</p>
+    <button onclick="orderFood('Burger')">Order Now</button>
+</div>
+
+<div class="food">
+    <h2>Biryani</h2>
+    <p>Price: ₹249</p>
+    <button onclick="orderFood('Biryani')">Order Now</button>
+</div>
+
+<script>
+function orderFood(itemName){
+
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const address = document.getElementById("address").value;
+
+    if(!name || !phone || !address){
+        alert("Please fill all details first!");
+        return;
+    }
+
+    fetch('/order', {
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+            food:itemName,
+            name:name,
+            phone:phone,
+            address:address
+        })
+    })
+    .then(res=>res.text())
+    .then(data=>{
+        alert(data);
+    });
+}
+</script>
+
+</body>
+</html>
