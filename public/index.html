@@ -91,12 +91,14 @@ async function placeOrder(item, price) {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      customer_name: name,
-      food_item: item,
-      quantity: 1,
-      total_price: price
-    })
+   body: JSON.stringify({
+  customer_name: name,
+  phone: phone,
+  address: address,
+  food_item: item,
+  quantity: 1,
+  total_price: price
+})
   });
 
  const text = await res.text();

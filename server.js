@@ -242,12 +242,12 @@ app.get('/logout', (req, res) => {
 async function createOrdersTable() {
   try {
 
-    await db.query(`DROP TABLE IF EXISTS orders;`);
-
-    await db.query(`
-      CREATE TABLE orders (
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
         customer_name TEXT,
+        phone TEXT,
+        address TEXT,
         food_item TEXT,
         quantity INT,
         total_price INT,
@@ -256,7 +256,7 @@ async function createOrdersTable() {
       );
     `);
 
-    console.log("Orders table recreated");
+    console.log("Orders table ready");
 
   } catch (err) {
     console.log("DB Error:", err);
@@ -265,17 +265,19 @@ async function createOrdersTable() {
 
 createOrdersTable();
 
+createOrdersTable();
+
 app.use(express.json());
 
 // place order
 app.post("/place-order", async (req, res) => {
   try {
-    const { customer_name, food_item, quantity, total_price } = req.body;
+    const { customer_name, phone, address, food_item, quantity, total_price } = req.body;
 
-    await db.query(
-      "INSERT INTO orders (customer_name, food_item, quantity, total_price) VALUES ($1,$2,$3,$4)",
-      [customer_name, food_item, quantity, total_price]
-    );
+   await pool.query(
+  "INSERT INTO orders (customer_name, phone, address, food_item, quantity, total_price) VALUES ($1,$2,$3,$4,$5,$6)",
+  [customer_name, phone, address, food_item, quantity, total_price]
+);
 
     res.json({ message: "Order placed successfully" });
   } catch (err) {
@@ -300,11 +302,12 @@ app.get("/delivered/:id", async (req,res)=>{
     res.redirect("/admin");
 });
 
-app.get("/track-order/:phone", async (req,res)=>{
+aapp.get("/track-order/:phone", async (req,res)=>{
     const phone = req.params.phone;
 
     const result = await pool.query(
-        "SELECT * FROM orders WHERE customer_name IS NOT NULL ORDER BY id DESC LIMIT 1"
+        "SELECT * FROM orders WHERE phone=$1 ORDER BY id DESC LIMIT 1",
+        [phone]
     );
 
     if(result.rows.length>0){
