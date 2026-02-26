@@ -49,30 +49,34 @@ app.get('/admin', async (req, res) => {
 
     <table border="1" cellpadding="10">
     <tr>
-     <th>ID</th>
-     <th>Food</th>
-     <th>Customer</th>
-     <th>Qty</th>
-     <th>Price</th>
-     <th>Status</th>
-     <th>Action</th>
-    </tr>`;
-
- result.rows.forEach(order => {
+    <th>ID</th>
+    <th>Food</th>
+    <th>Customer</th>
+    <th>Phone</th>
+    <th>Address</th>
+    <th>Qty</th>
+    <th>Price</th>
+    <th>Status</th>
+    <th>Action</th>
+    </tr>;
+    result.rows.forEach(order => {
     html += `
     <tr>
-        <td>${order.id}</td>
-        <td>${order.food_item}</td>
-        <td>${order.customer_name}</td>
-        <td>${order.quantity}</td>
-        <td>₹${order.total_price}</td>
-        <td>${order.status}</td>
-        <td>
-            <a href="/ready/${order.id}">Ready</a> |
-            <a href="/delivered/${order.id}">Delivered</a>
-        </td>
-    </tr>`;
-});
+    <td>${order.id}</td>
+    <td>${order.food_item}</td>
+    <td>${order.customer_name}</td>
+     <td>${order.phone}</td>
+     <td>${order.address}</td>
+     <td>${order.quantity}</td>
+    <td>₹${order.total_price}</td>
+    <td>${order.status}</td>
+    <td>
+    <a href="/ready/${order.id}">Ready</a> |
+    <a href="/delivered/${order.id}">Delivered</a>
+    </td>
+   </tr>
+   `;
+   });
 
     html += `
     </table>
