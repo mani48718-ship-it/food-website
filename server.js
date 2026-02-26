@@ -266,6 +266,25 @@ async function createOrdersTable() {
 
 createOrdersTable();
 
+app.use(express.json());
+
+// place order
+app.post("/place-order", async (req, res) => {
+  try {
+    const { customer_name, food_item, quantity, total_price } = req.body;
+
+    await db.query(
+      "INSERT INTO orders (customer_name, food_item, quantity, total_price) VALUES ($1,$2,$3,$4)",
+      [customer_name, food_item, quantity, total_price]
+    );
+
+    res.json({ message: "Order placed successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Order failed" });
+  }
+});
+
 app.listen(PORT, () => {
     console.log("Server started on port " + PORT);
 });

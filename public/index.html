@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-</body>
 <head>
     <title>SMK Restaurant</title>
     <style>
@@ -46,34 +45,6 @@
 <input id="name" placeholder="Your Name"><br><br> <input id="phone" placeholder="Phone Number"><br><br> <input id="address" placeholder="Delivery Address"><br><br>
 
 <script>
-function orderFood(itemName){
-
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const address = document.getElementById("address").value;
-
-    if(!name || !phone || !address){
-        alert("Please fill all details first!");
-        return;
-    }
-
-    fetch('/order', {
-        method:'POST',
-        headers:{
-            'Content-Type':'application/json'
-        },
-        body: JSON.stringify({
-            food:itemName,
-            name:name,
-            phone:phone,
-            address:address
-        })
-    })
-    .then(res=>res.text())
-    .then(data=>{
-        alert(data);
-    });
-}
 
 function loadMenu(){
     fetch('/menu')
@@ -88,7 +59,7 @@ function loadMenu(){
             <div class="food">
                 <h2>${item.item_name}</h2>
                 <p>Price: ₹${item.price}</p>
-                <button onclick="orderFood('${item.item_name}')">
+                <button onclick="placeOrder('${item.item_name}', ${item.price})">
                     Order Now
                 </button>
             </div>
@@ -100,6 +71,37 @@ function loadMenu(){
 
 loadMenu();
 
+</script>
+
+<script>
+
+async function placeOrder(item, price) {
+
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
+
+  if(!name || !phone || !address){
+    alert("Please fill all details");
+    return;
+  }
+
+  const res = await fetch("/place-order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      customer_name: name,
+      food_item: item,
+      quantity: 1,
+      total_price: price
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+}
 </script>
 
 </body>
