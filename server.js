@@ -1,3 +1,4 @@
+const db = require("./db");
 const session = require('express-session');
 const express = require('express');
 const app = express();
@@ -242,6 +243,28 @@ app.get('/logout', (req, res) => {
         res.redirect('/login');
     });
 });
+
+async function createOrdersTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        customer_name TEXT,
+        food_item TEXT,
+        quantity INT,
+        total_price INT,
+        status TEXT DEFAULT 'Preparing',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log("Orders table ready");
+  } catch (err) {
+    console.log("DB Error:", err);
+  }
+}
+
+createOrdersTable();
 
 app.listen(PORT, () => {
     console.log("Server started on port " + PORT);
