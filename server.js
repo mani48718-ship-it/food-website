@@ -10,6 +10,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('trust proxy', 1);
 
+```js
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const pool = require('./db');
+
+const app = express();
+
+// middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('trust proxy', 1);
+
+// session
 app.use(session({
     secret: 'smkrestaurantsecret',
     resave: false,
@@ -21,19 +36,13 @@ app.use(session({
     }
 }));
 
-// LOGIN CHECK MIDDLEWARE
-function checkAdmin(req, res, next){
-    if(req.session.loggedIn){
-        next();
-    }else{
-        res.redirect('/login');
-    }
-}
+/* =========================
+        ADMIN PANEL
+========================= */
 
-// ADMIN PANEL
 app.get('/admin', async (req, res) => {
 
-    if(!req.session.loggedIn){
+    if (!req.session.loggedIn) {
         return res.redirect('/login');
     }
 
@@ -49,110 +58,49 @@ app.get('/admin', async (req, res) => {
 
     <table border="1" cellpadding="10">
     <tr>
-    <th>ID</th>
-    <th>Food</th>
-    <th>Customer</th>
-    <th>Phone</th>
-    <th>Address</th>
-    <th>Qty</th>
-    <th>Price</th>
-    <th>Status</th>
-    <th>Action</th>
-    </tr>
-    ';
-
-    result.rows.forEach(order => {
-    html += `
-    <tr>
-    <td>${order.id}</td>
-    <td>${order.food_item}</td>
-    <td>${order.customer_name}</td>
-     <td>${order.phone}</td>
-     <td>${order.address}</td>
-     <td>${order.quantity}</td>
-    <td>₹${order.total_price}</td>
-    <td>${order.status}</td>
-    <td>
-    <a href="/ready/${order.id}">Ready</a> |
-    <a href="/delivered/${order.id}">Delivered</a>
-    </td>
-   </tr>
-   `;
-   });
-
-   html += `
-</table>
-
-<br><br>
-<a href="/logout">Logout</a>
-
-<script>
-setTimeout(function(){
-    window.location.reload();
-}, 5000);
-</script>
-
-</body>
-</html>
-`;
-    res.send(html);
-});
-
-
-// DELETE ORDER
-app.get('/delete/:id', async (req, res) => {
-    const orderId = req.params.id;
-    await pool.query('DELETE FROM orders WHERE id=$1', [orderId]);
-    res.redirect('/admin');
-});
-
-// MENU ADMIN PAGE
-app.get('/admin/menu', async (req, res) => {
-
-    if(!req.session.loggedIn){
-        return res.redirect('/login');
-    }
-
-    const result = await pool.query('SELECT * FROM menu ORDER BY id');
-
-    let html = `
-    <html>
-    <head>
-        <title>Manage Menu</title>
-    </head>
-    <body>
-    <h1>Menu Management</h1>
-
-    <h2>Add New Item</h2>
-    <form method="POST" action="/admin/menu/add">
-        <input name="item_name" placeholder="Item Name" required>
-        <input name="price" placeholder="Price" type="number" required>
-        <button type="submit">Add Item</button>
-    </form>
-
-    <h2>Current Menu</h2>
-    <table border="1" cellpadding="10">
-    <tr>
         <th>ID</th>
-        <th>Name</th>
+        <th>Food</th>
+        <th>Customer</th>
+        <th>Phone</th>
+        <th>Address</th>
+        <th>Qty</th>
         <th>Price</th>
+        <th>Status</th>
         <th>Action</th>
     </tr>
     `;
 
-    result.rows.forEach(item => {
+    result.rows.forEach(order => {
         html += `
         <tr>
-            <td>${item.id}</td>
-            <td>${item.item_name}</td>
-            <td>₹${item.price}</td>
-            <td><a href="/admin/menu/delete/${item.id}">Delete</a></td>
+            <td>${order.id}</td>
+            <td>${order.food_item}</td>
+            <td>${order.customer_name}</td>
+            <td>${order.phone}</td>
+            <td>${order.address}</td>
+            <td>${order.quantity}</td>
+            <td>₹${order.total_price}</td>
+            <td>${order.status}</td>
+            <td>
+                <a href="/ready/${order.id}">Ready</a> |
+                <a href="/delivered/${order.id}">Delivered</a>
+            </td>
         </tr>
         `;
     });
 
     html += `
     </table>
+
+    <br><br>
+    <a href="/logout">Logout</a>
+
+    <script>
+        setTimeout(function(){
+            window.location.reload();
+        }, 5000);
+    </script>
+
     </body>
     </html>
     `;
@@ -160,53 +108,18 @@ app.get('/admin/menu', async (req, res) => {
     res.send(html);
 });
 
-app.post('/admin/menu/add', async (req, res) => {
+/* =========================
+        LOGIN
+========================= */
 
-    const { item_name, price } = req.body;
-
-    await pool.query(
-        'INSERT INTO menu (item_name, price) VALUES ($1, $2)',
-        [item_name, price]
-    );
-
-    res.redirect('/admin/menu');
-});
-
-app.get('/admin/menu/delete/:id', async (req, res) => {
-
-    const id = req.params.id;
-
-    await pool.query('DELETE FROM menu WHERE id=$1', [id]);
-
-    res.redirect('/admin/menu');
-});
-
-// MENU API (send food items to website)
-app.get('/menu', async (req, res) => {
-    try {
-        const result = await pool.query(
-            'SELECT * FROM menu WHERE is_available=true ORDER BY id ASC'
-        );
-        res.json(result.rows);
-    } catch (err) {
-        console.log(err);
-        res.send("Menu error");
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-
-// LOGIN PAGE
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// LOGIN CHECK
 app.post('/login', (req, res) => {
-
     const { username, password } = req.body;
 
-    if(username === 'admin' && password === '1234'){
+    if (username === 'admin' && password === '1234') {
         req.session.loggedIn = true;
         res.redirect('/admin');
     } else {
@@ -215,59 +128,62 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy(()=>{
+    req.session.destroy(() => {
         res.redirect('/login');
     });
 });
 
-async function createOrdersTable() {
-  try {
+/* =========================
+        ORDERS TABLE
+========================= */
 
+async function createOrdersTable() {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS orders (
-        id SERIAL PRIMARY KEY,
-        customer_name TEXT,
-        phone TEXT,
-        address TEXT,
-        food_item TEXT,
-        quantity INT,
-        total_price INT,
-        status TEXT DEFAULT 'Preparing',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+        CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            customer_name TEXT,
+            phone TEXT,
+            address TEXT,
+            food_item TEXT,
+            quantity INT,
+            total_price INT,
+            status TEXT DEFAULT 'Preparing',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     `);
 
     console.log("Orders table ready");
-
-  } catch (err) {
-    console.log("DB Error:", err);
-  }
 }
-
 createOrdersTable();
 
-createOrdersTable();
+/* =========================
+        PLACE ORDER
+========================= */
 
-app.use(express.json());
-
-// place order
 app.post("/place-order", async (req, res) => {
-  try {
-    const { customer_name, phone, address, food_item, quantity, total_price } = req.body;
+    try {
+        const { customer_name, phone, address, food_item, quantity, total_price } = req.body;
 
-   await pool.query(
-  "INSERT INTO orders (customer_name, phone, address, food_item, quantity, total_price) VALUES ($1,$2,$3,$4,$5,$6)",
-  [customer_name, phone, address, food_item, quantity, total_price]
-);
+        await pool.query(
+            `INSERT INTO orders
+            (customer_name, phone, address, food_item, quantity, total_price)
+            VALUES ($1,$2,$3,$4,$5,$6)`,
+            [customer_name, phone, address, food_item, quantity, total_price]
+        );
 
-   res.json({ message: "Order placed successfully" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Order failed" });
-  }
+        res.json({ message: "Order placed successfully" });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Order failed" });
+    }
 });
 
-app.get("/ready/:id", async (req,res)=>{
+/* =========================
+        STATUS UPDATE
+========================= */
+
+app.get("/ready/:id", async (req, res) => {
     await pool.query(
         "UPDATE orders SET status='Ready' WHERE id=$1",
         [req.params.id]
@@ -275,7 +191,7 @@ app.get("/ready/:id", async (req,res)=>{
     res.redirect("/admin");
 });
 
-app.get("/delivered/:id", async (req,res)=>{
+app.get("/delivered/:id", async (req, res) => {
     await pool.query(
         "UPDATE orders SET status='Delivered' WHERE id=$1",
         [req.params.id]
@@ -283,7 +199,12 @@ app.get("/delivered/:id", async (req,res)=>{
     res.redirect("/admin");
 });
 
-app.get("/track-order/:phone", async (req,res)=>{
+/* =========================
+        TRACK ORDER
+========================= */
+
+app.get("/track-order/:phone", async (req, res) => {
+
     const phone = req.params.phone;
 
     const result = await pool.query(
@@ -291,17 +212,32 @@ app.get("/track-order/:phone", async (req,res)=>{
         [phone]
     );
 
-    if(result.rows.length>0){
+    if (result.rows.length > 0) {
         res.json({
-            found:true,
+            found: true,
             food: result.rows[0].food_item,
             status: result.rows[0].status
         });
-    }else{
-        res.json({found:false});
+    } else {
+        res.json({ found: false });
     }
 });
 
+/* =========================
+        MENU API
+========================= */
+
+app.get('/menu', async (req, res) => {
+    const result = await pool.query('SELECT * FROM menu ORDER BY id ASC');
+    res.json(result.rows);
+});
+
+/* =========================
+        SERVER
+========================= */
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log("Server started on port " + PORT);
 });
+```
