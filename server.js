@@ -4,6 +4,7 @@ const path = require('path');
 const pool = require('./db');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ORDER API
@@ -90,6 +91,77 @@ app.get('/delete/:id', async (req, res) => {
     const orderId = req.params.id;
     await pool.query('DELETE FROM orders WHERE id=$1', [orderId]);
     res.redirect('/admin');
+});
+
+// MENU ADMIN PAGE
+app.get('/admin/menu', async (req, res) => {
+
+    const result = await pool.query('SELECT * FROM menu ORDER BY id');
+
+    let html = `
+    <html>
+    <head>
+        <title>Manage Menu</title>
+    </head>
+    <body>
+    <h1>Menu Management</h1>
+
+    <h2>Add New Item</h2>
+    <form method="POST" action="/admin/menu/add">
+        <input name="item_name" placeholder="Item Name" required>
+        <input name="price" placeholder="Price" type="number" required>
+        <button type="submit">Add Item</button>
+    </form>
+
+    <h2>Current Menu</h2>
+    <table border="1" cellpadding="10">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Action</th>
+    </tr>
+    `;
+
+    result.rows.forEach(item => {
+        html += `
+        <tr>
+            <td>${item.id}</td>
+            <td>${item.item_name}</td>
+            <td>₹${item.price}</td>
+            <td><a href="/admin/menu/delete/${item.id}">Delete</a></td>
+        </tr>
+        `;
+    });
+
+    html += `
+    </table>
+    </body>
+    </html>
+    `;
+
+    res.send(html);
+});
+
+app.post('/admin/menu/add', async (req, res) => {
+
+    const { item_name, price } = req.body;
+
+    await pool.query(
+        'INSERT INTO menu (item_name, price) VALUES ($1, $2)',
+        [item_name, price]
+    );
+
+    res.redirect('/admin/menu');
+});
+
+app.get('/admin/menu/delete/:id', async (req, res) => {
+
+    const id = req.params.id;
+
+    await pool.query('DELETE FROM menu WHERE id=$1', [id]);
+
+    res.redirect('/admin/menu');
 });
 
 // MENU API (send food items to website)
