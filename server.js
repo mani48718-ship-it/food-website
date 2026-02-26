@@ -1,3 +1,4 @@
+const session = require('express-session');
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -6,6 +7,11 @@ const pool = require('./db');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+    secret: 'smkrestaurantsecret',
+    resave: false,
+    saveUninitialized: true
+}));
 
 // ORDER API
 app.post('/order', async (req, res) => {
@@ -35,6 +41,10 @@ app.post('/order', async (req, res) => {
 
 // ADMIN PANEL
 app.get('/admin', async (req, res) => {
+
+    if(!req.session.loggedin){
+        return res.redirect('/login');
+    }
 
     const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
 
@@ -95,6 +105,10 @@ app.get('/delete/:id', async (req, res) => {
 
 // MENU ADMIN PAGE
 app.get('/admin/menu', async (req, res) => {
+
+    if(!req.session.loggedin){
+        return res.redirect('/login');
+    }
 
     const result = await pool.query('SELECT * FROM menu ORDER BY id');
 
@@ -178,6 +192,24 @@ app.get('/menu', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// LOGIN PAGE
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// LOGIN CHECK
+app.post('/login', (req, res) => {
+
+    const { username, password } = req.body;
+
+    if(username === 'admin' && password === '1234'){
+        req.session.loggedin = true;
+        res.redirect('/admin');
+    } else {
+        res.send('Wrong username or password');
+    }
+});
 
 app.listen(PORT, () => {
     console.log("Server started on port " + PORT);
