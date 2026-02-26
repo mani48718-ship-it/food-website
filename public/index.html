@@ -41,25 +41,13 @@
 
 <h2>Place Your Order</h2>
 
+<div id="menu"></div>
+
 <input id="name" placeholder="Your Name"><br><br> <input id="phone" placeholder="Phone Number"><br><br> <input id="address" placeholder="Delivery Address"><br><br>
 
-<div class="food">
-    <h2>Pizza</h2>
-    <p>Price: ₹199</p>
-    <button onclick="orderFood('Pizza')">Order Now</button>
-</div>
-
-<div class="food">
-    <h2>Burger</h2>
-    <p>Price: ₹99</p>
-    <button onclick="orderFood('Burger')">Order Now</button>
-</div>
-
-<div class="food">
-    <h2>Biryani</h2>
-    <p>Price: ₹249</p>
-    <button onclick="orderFood('Biryani')">Order Now</button>
-</div>
+<div class="food">...</div>
+<div class="food">...</div>
+<div class="food">...</div>
 
 <script>
 function orderFood(itemName){
@@ -90,6 +78,32 @@ function orderFood(itemName){
         alert(data);
     });
 }
+
+function loadMenu(){
+    fetch('/menu')
+    .then(res => res.json())
+    .then(items => {
+
+        const menuDiv = document.getElementById("menu");
+        menuDiv.innerHTML = "";
+
+        items.forEach(item => {
+            menuDiv.innerHTML += `
+            <div class="food">
+                <h2>${item.item_name}</h2>
+                <p>Price: ₹${item.price}</p>
+                <button onclick="orderFood('${item.item_name}')">
+                    Order Now
+                </button>
+            </div>
+            `;
+        });
+
+    });
+}
+
+loadMenu();
+
 </script>
 
 </body>
