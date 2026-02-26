@@ -30,31 +30,23 @@ function checkAdmin(req, res, next){
     }
 }
 
-// ORDER API
-app.post('/order', async (req, res) => {
+// PLACE ORDER (database)
+app.post("/place-order", async (req, res) => {
+  try {
+    const { customer_name, food_item, quantity, total_price } = req.body;
 
-    console.log("BODY DATA:", req.body);
-    
-    const foodItem = req.body.food;
-    const name = req.body.name;
-    const phone = req.body.phone;
-    const address = req.body.address;
+    await db.query(
+      "INSERT INTO orders (customer_name, food_item, quantity, total_price) VALUES ($1,$2,$3,$4)",
+      [customer_name, food_item, quantity, total_price]
+    );
 
-    try {
-        await pool.query(
-            'INSERT INTO orders (food_name, customer_name, phone, address) VALUES ($1,$2,$3,$4)',
-            [foodItem, name, phone, address]
-        );
+    res.json({ message: "Order placed successfully" });
 
-        console.log("Saved to database:", foodItem);
-        res.send(`Your ${foodItem} order placed successfully! 🍽️`);
-
-    } catch (err) {
-        console.error(err);
-        res.send("Database error");
-    }
+  } catch (err) {
+    console.log("Order Error:", err);
+    res.status(500).json({ error: "Order failed" });
+  }
 });
-
 
 // ADMIN PANEL
 app.get('/admin', async (req, res) => {
