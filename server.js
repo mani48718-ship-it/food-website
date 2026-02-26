@@ -13,6 +13,24 @@ app.use(session({
     saveUninitialized: true
 }));
 
+// LOGIN CHECK
+app.post('/login', (req, res) => {
+
+    const username = req.body.username;
+    const password = req.body.password;
+
+    // your admin account (you can change later)
+    const ADMIN_USER = "Mani";
+    const ADMIN_PASS = "7989";
+
+    if(username === ADMIN_USER && password === ADMIN_PASS){
+        req.session.loggedIn = true;
+        res.redirect('/admin');
+    }else{
+        res.send("<h2>Wrong username or password ❌</h2><a href='/login'>Try Again</a>");
+    }
+});
+
 // LOGIN CHECK MIDDLEWARE
 function checkAdmin(req, res, next){
     if(req.session.loggedIn){
