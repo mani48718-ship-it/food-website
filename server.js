@@ -73,7 +73,7 @@ app.post('/order', async (req, res) => {
 
 
 // ADMIN PANEL
-app.get('/admin', checkAdmin, async (req, res) => {
+app.get('/admin', async (req, res) => {
 
     if(!req.session.loggedin){
         return res.redirect('/login');
@@ -147,7 +147,7 @@ app.get('/delete/:id', async (req, res) => {
 });
 
 // MENU ADMIN PAGE
-app.get('/admin/menu', checkAdmin, async (req, res) => {
+app.get('/admin/menu', async (req, res) => {
 
     if(!req.session.loggedin){
         return res.redirect('/login');
