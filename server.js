@@ -302,7 +302,7 @@ app.get("/delivered/:id", async (req,res)=>{
     res.redirect("/admin");
 });
 
-aapp.get("/track-order/:phone", async (req,res)=>{
+app.get("/track-order/:phone", async (req,res)=>{
     const phone = req.params.phone;
 
     const result = await pool.query(
