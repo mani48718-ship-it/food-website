@@ -67,27 +67,30 @@ app.get('/admin', async (req, res) => {
 
     <table border="1" cellpadding="10">
     <tr>
-        <th>ID</th>
-<th>Food</th>
-<th>Name</th>
-<th>Phone</th>
-<th>Address</th>
-<th>Time</th>
-        <th>Action</th>
+     <th>ID</th>
+     <th>Food</th>
+     <th>Customer</th>
+     <th>Qty</th>
+     <th>Price</th>
+     <th>Status</th>
+     <th>Action</th>
     </tr>`;
 
-    result.rows.forEach(order => {
-        html += `
-        <tr>
-            <td>${order.id}</td>
-           <td>${order.food_name}</td>
-<td>${order.customer_name}</td>
-<td>${order.phone}</td>
-<td>${order.address}</td>
-<td>${order.order_time}</td>
-            <td><a href="/delete/${order.id}">Done</a></td>
-        </tr>`;
-    });
+ result.rows.forEach(order => {
+    html += `
+    <tr>
+        <td>${order.id}</td>
+        <td>${order.food_item}</td>
+        <td>${order.customer_name}</td>
+        <td>${order.quantity}</td>
+        <td>₹${order.total_price}</td>
+        <td>${order.status}</td>
+        <td>
+            <a href="/ready/${order.id}">Ready</a> |
+            <a href="/delivered/${order.id}">Delivered</a>
+        </td>
+    </tr>`;
+});
 
     html += `
     </table>
@@ -279,6 +282,22 @@ app.post("/place-order", async (req, res) => {
     console.log(err);
     res.status(500).json({ error: "Order failed" });
   }
+});
+
+app.get("/ready/:id", async (req,res)=>{
+    await pool.query(
+        "UPDATE orders SET status='Ready' WHERE id=$1",
+        [req.params.id]
+    );
+    res.redirect("/admin");
+});
+
+app.get("/delivered/:id", async (req,res)=>{
+    await pool.query(
+        "UPDATE orders SET status='Delivered' WHERE id=$1",
+        [req.params.id]
+    );
+    res.redirect("/admin");
 });
 
 app.listen(PORT, () => {
