@@ -13,6 +13,15 @@ app.use(session({
     saveUninitialized: true
 }));
 
+// LOGIN CHECK MIDDLEWARE
+function checkAdmin(req, res, next){
+    if(req.session.loggedIn){
+        next();
+    }else{
+        res.redirect('/login');
+    }
+}
+
 // ORDER API
 app.post('/order', async (req, res) => {
 
@@ -40,7 +49,7 @@ app.post('/order', async (req, res) => {
 
 
 // ADMIN PANEL
-app.get('/admin', async (req, res) => {
+app.get('/admin', checkAdmin, async (req, res) => {
 
     if(!req.session.loggedin){
         return res.redirect('/login');
@@ -88,6 +97,16 @@ app.get('/admin', async (req, res) => {
             window.location.reload();
         }, 5000);
     </script>
+    </table>
+
+    <br><br>
+    <a href="/logout">Logout</a>
+
+    <script>
+        setTimeout(function(){
+            window.location.reload();
+        }, 5000);
+    </script>
 
     </body>
     </html>`;
@@ -104,7 +123,7 @@ app.get('/delete/:id', async (req, res) => {
 });
 
 // MENU ADMIN PAGE
-app.get('/admin/menu', async (req, res) => {
+app.get('/admin/menu', checkAdmin, async (req, res) => {
 
     if(!req.session.loggedin){
         return res.redirect('/login');
@@ -209,6 +228,12 @@ app.post('/login', (req, res) => {
     } else {
         res.send('Wrong username or password');
     }
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(()=>{
+        res.redirect('/login');
+    });
 });
 
 app.listen(PORT, () => {
