@@ -58,7 +58,9 @@ app.get('/admin', async (req, res) => {
     <th>Price</th>
     <th>Status</th>
     <th>Action</th>
-    </tr>;
+    </tr>
+    ';
+
     result.rows.forEach(order => {
     html += `
     <tr>
@@ -78,28 +80,21 @@ app.get('/admin', async (req, res) => {
    `;
    });
 
-    html += `
-    </table>
+   html += `
+</table>
 
-    <script>
-        setTimeout(function(){
-            window.location.reload();
-        }, 5000);
-    </script>
-    </table>
+<br><br>
+<a href="/logout">Logout</a>
 
-    <br><br>
-    <a href="/logout">Logout</a>
+<script>
+setTimeout(function(){
+    window.location.reload();
+}, 5000);
+</script>
 
-    <script>
-        setTimeout(function(){
-            window.location.reload();
-        }, 5000);
-    </script>
-
-    </body>
-    </html>`;
-
+</body>
+</html>
+`;
     res.send(html);
 });
 
