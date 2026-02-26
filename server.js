@@ -7,10 +7,16 @@ const pool = require('./db');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('trust proxy', 1);
 app.use(session({
     secret: 'smkrestaurantsecret',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    cookie: {
+        secure: true,
+        httpOnly: true,
+        sameSite: 'none'
+    }
 }));
 
 // LOGIN CHECK
