@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('trust proxy', 1);
+
 app.use(session({
     secret: 'smkrestaurantsecret',
     resave: false,
@@ -18,24 +19,6 @@ app.use(session({
         sameSite: 'none'
     }
 }));
-
-// LOGIN CHECK
-app.post('/login', (req, res) => {
-
-    const username = req.body.username;
-    const password = req.body.password;
-
-    // your admin account (you can change later)
-    const ADMIN_USER = "admin";
-    const ADMIN_PASS = "1234";
-
-    if(username === ADMIN_USER && password === ADMIN_PASS){
-        req.session.loggedIn = true;
-        res.redirect('/admin');
-    }else{
-        res.send("<h2>Wrong username or password ❌</h2><a href='/login'>Try Again</a>");
-    }
-});
 
 // LOGIN CHECK MIDDLEWARE
 function checkAdmin(req, res, next){
@@ -247,7 +230,7 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
     if(username === 'admin' && password === '1234'){
-        req.session.loggedin = true;
+        req.session.loggedIn = true;
         res.redirect('/admin');
     } else {
         res.send('Wrong username or password');
