@@ -261,7 +261,7 @@ app.post("/place-order", async (req, res) => {
   [customer_name, phone, address, food_item, quantity, total_price]
 );
 
-    res.json({ "Order placed successfully" });
+   res.json({ message: "Order placed successfully" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Order failed" });
