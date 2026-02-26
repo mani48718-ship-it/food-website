@@ -92,6 +92,19 @@ app.get('/delete/:id', async (req, res) => {
     res.redirect('/admin');
 });
 
+// MENU API (send food items to website)
+app.get('/menu', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM menu WHERE is_available=true ORDER BY id ASC'
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.log(err);
+        res.send("Menu error");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
