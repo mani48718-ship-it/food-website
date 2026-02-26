@@ -1,13 +1,13 @@
-const Razorpay = require('razorpay');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const pool = require('./db');
 
 const app = express();
+const Razorpay = require('razorpay');
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
+  key_id: process.env.rzp_test_SKw7GuDrgFH2n2,
+  key_secret: process.env.UZmhAUNHh5fdQT5spoTrMD0L
 });
 
 app.use(express.json());

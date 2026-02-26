@@ -74,7 +74,6 @@ loadMenu();
 </script>
 
 <script>
-
 async function placeOrder(item, price) {
 
   const name = document.getElementById("name").value;
@@ -82,27 +81,46 @@ async function placeOrder(item, price) {
   const address = document.getElementById("address").value;
 
   if(!name || !phone || !address){
-    alert("Please fill all details");
+    alert("Fill all details");
     return;
   }
 
-  const res = await fetch("/place-order", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-   body: JSON.stringify({
-  customer_name: name,
-  phone: phone,
-  address: address,
-  food_item: item,
-  quantity: 1,
-  total_price: price
-})
+  const paymentRes = await fetch("/create-payment", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ amount: price })
   });
 
- const text = await res.text();
-alert(text);
+  const paymentData = await paymentRes.json();
+
+  const options = {
+    key: "rzp_test_SKw7GuDrgFH2n2",
+    amount: paymentData.amount,
+    currency: "INR",
+    name: "SMK Restaurant",
+    order_id: paymentData.id,
+    handler: async function (response){
+
+      await fetch("/place-order", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+          customer_name: name,
+          phone: phone,
+          address: address,
+          food_item: item,
+          quantity: 1,
+          total_price: price
+        })
+      });
+
+      alert("Payment Successful & Order Placed");
+      window.location.reload();
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
 </script>
 
