@@ -30,23 +30,6 @@ function checkAdmin(req, res, next){
     }
 }
 
-// PLACE ORDER (database)
-app.post("/place-order", async (req, res) => {
-  try {
-   const { customer_name, phone, address, food_item, quantity, total_price } = req.body;
-    await db.query(
-      "INSERT INTO orders (customer_name, phone, address, food_item, quantity, total_price ($1,$2,$3,$4)",
-      [customer_name, phone, address, food_item, quantity, total_pricee]
-    );
-
-    res.json({ message: "Order placed successfully" });
-
-  } catch (err) {
-    console.log("Order Error:", err);
-    res.status(500).json({ error: "Order failed" });
-  }
-});
-
 // ADMIN PANEL
 app.get('/admin', async (req, res) => {
 
@@ -278,7 +261,7 @@ app.post("/place-order", async (req, res) => {
   [customer_name, phone, address, food_item, quantity, total_price]
 );
 
-    res.json({ message: "Order placed successfully" });
+    res.json({ "Order placed successfully" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Order failed" });
