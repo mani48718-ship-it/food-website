@@ -238,8 +238,11 @@ app.get('/logout', (req, res) => {
 
 async function createOrdersTable() {
   try {
+
+    await db.query(`DROP TABLE IF EXISTS orders;`);
+
     await db.query(`
-      CREATE TABLE IF NOT EXISTS orders (
+      CREATE TABLE orders (
         id SERIAL PRIMARY KEY,
         customer_name TEXT,
         food_item TEXT,
@@ -250,7 +253,8 @@ async function createOrdersTable() {
       );
     `);
 
-    console.log("Orders table ready");
+    console.log("Orders table recreated");
+
   } catch (err) {
     console.log("DB Error:", err);
   }
