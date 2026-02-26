@@ -33,11 +33,10 @@ function checkAdmin(req, res, next){
 // PLACE ORDER (database)
 app.post("/place-order", async (req, res) => {
   try {
-    const { customer_name, food_item, quantity, total_price } = req.body;
-
+   const { customer_name, phone, address, food_item, quantity, total_price } = req.body;
     await db.query(
-      "INSERT INTO orders (customer_name, food_item, quantity, total_price) VALUES ($1,$2,$3,$4)",
-      [customer_name, food_item, quantity, total_price]
+      "INSERT INTO orders (customer_name, phone, address, food_item, quantity, total_price ($1,$2,$3,$4)",
+      [customer_name, phone, address, food_item, quantity, total_pricee]
     );
 
     res.json({ message: "Order placed successfully" });
