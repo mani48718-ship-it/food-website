@@ -300,6 +300,24 @@ app.get("/delivered/:id", async (req,res)=>{
     res.redirect("/admin");
 });
 
+app.get("/track-order/:phone", async (req,res)=>{
+    const phone = req.params.phone;
+
+    const result = await pool.query(
+        "SELECT * FROM orders WHERE customer_name IS NOT NULL ORDER BY id DESC LIMIT 1"
+    );
+
+    if(result.rows.length>0){
+        res.json({
+            found:true,
+            food: result.rows[0].food_item,
+            status: result.rows[0].status
+        });
+    }else{
+        res.json({found:false});
+    }
+});
+
 app.listen(PORT, () => {
     console.log("Server started on port " + PORT);
 });
