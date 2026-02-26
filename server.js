@@ -20,8 +20,8 @@ app.post('/login', (req, res) => {
     const password = req.body.password;
 
     // your admin account (you can change later)
-    const ADMIN_USER = "Mani";
-    const ADMIN_PASS = "7989";
+    const ADMIN_USER = "admin";
+    const ADMIN_PASS = "1234";
 
     if(username === ADMIN_USER && password === ADMIN_PASS){
         req.session.loggedIn = true;
