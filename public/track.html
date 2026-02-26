@@ -41,7 +41,7 @@
 <br>
 <button onclick="track()">Track</button>
 
-<h3 id="result"></h3>
+<div id="result"></div>
 </div>
 
 <script>
@@ -51,11 +51,25 @@ async function track(){
     const res = await fetch("/track-order/"+phone);
     const data = await res.json();
 
+    const resultDiv = document.getElementById("result");
+
     if(data.found){
-        document.getElementById("result").innerText =
-        "Food: " + data.food + " | Status: " + data.status;
+
+        let stages = ["Preparing","Ready","Out for Delivery","Delivered"];
+        let html = "<h3>Order: "+data.food+"</h3>";
+
+        stages.forEach(stage=>{
+            if(stage === data.status){
+                html += "<p style='color:green;font-weight:bold'>✔ "+stage+"</p>";
+            }else{
+                html += "<p style='color:gray'>• "+stage+"</p>";
+            }
+        });
+
+        resultDiv.innerHTML = html;
+
     }else{
-        document.getElementById("result").innerText = "No order found";
+        resultDiv.innerHTML = "No order found";
     }
 }
 </script>

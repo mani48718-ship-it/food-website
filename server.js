@@ -1,9 +1,14 @@
+const Razorpay = require('razorpay');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const pool = require('./db');
 
 const app = express();
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -84,6 +89,20 @@ app.post('/place-order', async (req,res)=>{
   }
 });
 
+app.post('/create-payment', async (req,res)=>{
+  const { amount } = req.body;
+
+  const options = {
+    amount: amount * 100,
+    currency: "INR",
+    receipt: "order_rcptid_11"
+  };
+
+  const order = await razorpay.orders.create(options);
+
+  res.json(order);
+});
+
 /* =====================
    ADMIN PANEL
 ===================== */
@@ -127,9 +146,10 @@ app.get('/admin', async (req,res)=>{
       <td>₹${order.total_price}</td>
       <td>${order.status}</td>
       <td>
-        <a href="/ready/${order.id}">Ready</a> |
-        <a href="/delivered/${order.id}">Delivered</a>
-      </td>
+  <a href="/ready/${order.id}">Ready</a> |
+  <a href="/out/${order.id}">Out</a> |
+  <a href="/delivered/${order.id}">Delivered</a>
+  </td>
     </tr>
     `;
   });
@@ -153,6 +173,14 @@ app.get('/admin', async (req,res)=>{
 
 app.get('/ready/:id', async (req,res)=>{
   await pool.query("UPDATE orders SET status='Ready' WHERE id=$1",[req.params.id]);
+  res.redirect('/admin');
+});
+
+app.get('/out/:id', async (req,res)=>{
+  await pool.query(
+    "UPDATE orders SET status='Out for Delivery' WHERE id=$1",
+    [req.params.id]
+  );
   res.redirect('/admin');
 });
 
