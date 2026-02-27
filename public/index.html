@@ -54,6 +54,23 @@ button{
 </div>
 
 <script>
+
+
+// AUTO LOGIN CUSTOMER (IMPORTANT)
+window.onload = function(){
+
+  const name = localStorage.getItem("cust_name");
+  const phone = localStorage.getItem("cust_phone");
+  const address = localStorage.getItem("cust_address");
+
+  // If customer already visited → go menu directly
+  if(name && phone && address){
+      window.location.href="/menu.html";
+  }
+
+};
+
+
 function startOrder(){
   const name=document.getElementById("name").value;
   const phone=document.getElementById("phone").value;
