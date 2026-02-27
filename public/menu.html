@@ -29,6 +29,30 @@ display:inline-block;
 border-radius:12px;
 box-shadow:0 0 10px #ccc;
 }
+/* LAYOUT */
+.container{
+display:flex;
+align-items:flex-start;
+}
+
+/* LEFT MENU AREA */
+#menu{
+flex:3;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+/* RIGHT CART PANEL */
+#cartBox{
+position:sticky;
+top:90px;
+right:auto;
+bottom:auto;
+width:280px;
+margin:20px;
+height:fit-content;
+}
 
 button{
 background:#28a745;
@@ -67,12 +91,7 @@ width:100%;
 margin-top:10px;
 }
 
-#menu{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-padding-bottom:160px;
-}
+
 </style>
 
 </head>
@@ -81,10 +100,12 @@ padding-bottom:160px;
 
 <header>🍔 SMK Restaurant</header>
 
+<div class="container">
+
+<div style="flex:3;">
 <h2>Menu</h2>
 <div id="menu">Loading menu...</div>
-
-<!-- CART -->
+</div>
 
 <div id="cartBox">
 <h3>🛒 Your Cart</h3>
@@ -246,5 +267,6 @@ updateCart();
 
 </script>
 
+</div>
 </body>
 </html>
