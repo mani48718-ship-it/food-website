@@ -278,6 +278,69 @@ window.onload=function(){
 loadMenu();
 updateCart();
 };
+<script>
+
+async function confirmOrder(){
+
+    if(total === 0){
+        alert("Please add items to cart");
+        return;
+    }
+
+    const name = localStorage.getItem("cust_name");
+    const phone = localStorage.getItem("cust_phone");
+    const address = localStorage.getItem("cust_address");
+
+    if(!name || !phone || !address){
+        alert("Please fill your profile first 👤");
+        openProfile();
+        return;
+    }
+
+    // convert cart to text
+    let itemsText = "";
+    for(let item in cart){
+        itemsText += item + " x" + cart[item].qty + ", ";
+    }
+
+    try{
+        const response = await fetch("/place-order",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                customer_name:name,
+                phone:phone,
+                address:address,
+                food_item:itemsText,
+                quantity:Object.keys(cart).length,
+                total_price:total
+            })
+        });
+
+        const data = await response.json();
+
+        if(data.message){
+
+            alert("✅ Order placed successfully!");
+
+            // clear cart
+            localStorage.removeItem("cart");
+            cart = {};
+            updateCart();
+
+            window.location.href="/track.html";
+
+        }else{
+            alert("Order failed");
+        }
+
+    }catch(err){
+        alert("Server connection error ❌");
+    }
+}
+
 </script>
 
 </body>
