@@ -6,57 +6,55 @@
 
 <style>
 body{
-    font-family: Arial;
-    background:#f5f5f5;
-    text-align:center;
-    margin:0;
+font-family:Arial;
+background:#f5f5f5;
+text-align:center;
+margin:0;
 }
 
 header{
-    background:#ff4d4d;
-    color:white;
-    padding:18px;
-    font-size:30px;
-    font-weight:bold;
-}
-
-.nav{
-    margin:20px;
-}
-
-.nav a{
-    background:#ff4d4d;
-    color:white;
-    padding:12px 20px;
-    text-decoration:none;
-    border-radius:8px;
-    font-weight:bold;
-    margin:5px;
-    display:inline-block;
-}
-
-.track{
-    background:#007bff !important;
+background:#ff4d4d;
+color:white;
+padding:18px;
+font-size:30px;
+font-weight:bold;
 }
 
 .food{
-    background:white;
-    width:250px;
-    padding:15px;
-    margin:15px;
-    display:inline-block;
-    border-radius:12px;
-    box-shadow:0 0 10px #ccc;
+background:white;
+width:250px;
+padding:15px;
+margin:15px;
+display:inline-block;
+border-radius:12px;
+box-shadow:0 0 10px #ccc;
 }
 
 button{
-    background:#28a745;
-    color:white;
-    border:none;
-    padding:10px 15px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:16px;
+background:#28a745;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+font-size:16px;
+}
+
+#cartBox{
+position:fixed;
+right:20px;
+top:120px;
+width:260px;
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 0 15px #aaa;
+}
+
+#confirmBtn{
+background:#ff4d4d;
+width:100%;
+margin-top:10px;
 }
 </style>
 
@@ -66,95 +64,130 @@ button{
 
 <header>🍔 SMK Restaurant</header>
 
-<div class="nav">
-    <a href="/menu.html">🍽 Order Food</a>
-    <a href="/track.html" class="track">📦 Track My Order</a>
-</div>
-
 <h2>Menu</h2>
 <div id="menu">Loading menu...</div>
 
+<!-- CART -->
+
+<div id="cartBox">
+<h3>🛒 Your Cart</h3>
+<div id="cartItems">No items</div>
+<h3>Total: ₹<span id="total">0</span></h3>
+<button id="confirmBtn" onclick="confirmOrder()">Confirm Order</button>
+</div>
+
 <script>
 
-// LOAD MENU
+let cart = {};
+let total = 0;
+
+/* LOAD MENU */
 function loadMenu(){
-    fetch('/menu')
-    .then(res => res.json())
-    .then(items => {
+fetch('/menu')
+.then(res=>res.json())
+.then(items=>{
 
-        const menuDiv = document.getElementById("menu");
-        menuDiv.innerHTML = "";
+const menuDiv=document.getElementById("menu");
+menuDiv.innerHTML="";
 
-        if(items.length === 0){
-            menuDiv.innerHTML = "<h3>No food available</h3>";
-            return;
-        }
+items.forEach(item=>{
+menuDiv.innerHTML+=`
+<div class="food">
+<h2>${item.item_name}</h2>
+<p><b>₹${item.price}</b></p>
+<button onclick="addToCart('${item.item_name}',${item.price})">Add</button>
+</div>
+`;
+});
 
-        items.forEach(item => {
-            menuDiv.innerHTML += `
-            <div class="food">
-                <h3>${item.item_name}</h3>
-                <p><b>₹${item.price}</b></p>
-                <button onclick="placeOrder('${item.item_name}', ${item.price})">
-                    Order Now
-                </button>
-            </div>
-            `;
-        });
-
-    })
-    .catch(()=>{
-        document.getElementById("menu").innerHTML = "Server not responding";
-    });
+})
+.catch(()=>{
+document.getElementById("menu").innerHTML="Server not responding";
+});
 }
 
 loadMenu();
 
+/* ADD TO CART */
+function addToCart(name,price){
 
-// PLACE ORDER
-async function placeOrder(item, price){
+if(!cart[name]){
+cart[name]={qty:0,price:price};
+}
 
-    const name = localStorage.getItem("cust_name");
-    const phone = localStorage.getItem("cust_phone");
-    const address = localStorage.getItem("cust_address");
+cart[name].qty++;
+updateCart();
+}
 
-    if(!name || !phone || !address){
-        alert("Enter details first");
-        window.location.href="/";
-        return;
-    }
+/* UPDATE CART UI */
+function updateCart(){
 
-    try{
-        const res = await fetch("/place-order",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify({
-                customer_name: name,
-                phone: phone,
-                address: address,
-                food_item: item,
-                quantity: 1,
-                total_price: price
-            })
-        });
+const cartDiv=document.getElementById("cartItems");
+cartDiv.innerHTML="";
+total=0;
 
-        const data = await res.json();
+for(let item in cart){
+let qty=cart[item].qty;
+let price=cart[item].price*qty;
+total+=price;
 
-        if(data.message){
-            alert("✅ Order Confirmed!\nCash on Delivery.");
-            window.location.href="/track.html";
-        }else{
-            alert("Order failed");
-        }
+cartDiv.innerHTML+=`${item} x${qty} = ₹${price}<br>`;
+}
 
-    }catch(err){
-        alert("Server error");
-    }
+document.getElementById("total").innerText=total;
+}
+
+/* CONFIRM ORDER */
+async function confirmOrder(){
+
+if(total==0){
+alert("Add items first");
+return;
+}
+
+const name=localStorage.getItem("cust_name");
+const phone=localStorage.getItem("cust_phone");
+const address=localStorage.getItem("cust_address");
+
+if(!name||!phone||!address){
+alert("Enter details first");
+window.location="/";
+return;
+}
+
+/* create food string */
+let itemsText="";
+for(let item in cart){
+itemsText+=`${item} x${cart[item].qty}, `;
+}
+
+const res=await fetch("/place-order",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+customer_name:name,
+phone:phone,
+address:address,
+food_item:itemsText,
+quantity:1,
+total_price:total
+})
+});
+
+const data=await res.json();
+
+if(data.message){
+alert("✅ Order Placed!\nBill: ₹"+total);
+window.location="/track.html";
+}else{
+alert("Order failed");
+}
+
 }
 
 </script>
 
 </body>
 </html>
+
+
