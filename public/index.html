@@ -1,181 +1,76 @@
 <!DOCTYPE html>
+
 <html>
 <head>
-    <title>SMK Restaurant</title>
+<title>SMK Restaurant</title>
 
-    <style>
-        body{
-            font-family: Arial;
-            background:#f5f5f5;
-            text-align:center;
-            margin:0;
-        }
+<style>
+body{
+  font-family:Arial;
+  background:#f5f5f5;
+  text-align:center;
+  padding-top:80px;
+}
 
-        header{
-            background:#ff4d4d;
-            color:white;
-            padding:18px;
-            font-size:30px;
-            font-weight:bold;
-        }
+.card{
+  background:white;
+  width:320px;
+  margin:auto;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 0 12px #ccc;
+}
 
-        h2{
-            margin-top:25px;
-        }
+input{
+  width:90%;
+  padding:10px;
+  margin:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
 
-        .food{
-            background:white;
-            width:250px;
-            padding:15px;
-            margin:15px;
-            display:inline-block;
-            border-radius:12px;
-            box-shadow:0 0 10px #ccc;
-        }
+button{
+  background:#ff4d4d;
+  color:white;
+  padding:12px 18px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
 
-        button{
-            background:#28a745;
-            color:white;
-            border:none;
-            padding:10px 15px;
-            border-radius:6px;
-            cursor:pointer;
-            font-size:16px;
-        }
-
-        input{
-            padding:10px;
-            width:250px;
-            border-radius:6px;
-            border:1px solid #ccc;
-        }
-
-        #orderForm{
-            margin-top:25px;
-        }
-    </style>
 </head>
 
 <body>
 
-<header>🍔 SMK Restaurant</header>
+<div class="card">
+<h2>🍔 Welcome to SMK Restaurant</h2>
 
-<div style="margin:20px;">
-  
-  <a href="#menu" style="
-    background:#ff4d4d;
-    color:white;
-    padding:12px 20px;
-    text-decoration:none;
-    border-radius:8px;
-    font-weight:bold;
-    margin-right:10px;
-    display:inline-block;">
-    🍽 Order Food
-  </a>
+<input id="name" placeholder="Your Name"><br> <input id="phone" placeholder="Phone Number"><br> <input id="address" placeholder="Delivery Address"><br>
 
-  <a href="/track.html" style="
-    background:#007bff;
-    color:white;
-    padding:12px 20px;
-    text-decoration:none;
-    border-radius:8px;
-    font-weight:bold;
-    display:inline-block;">
-    📦 Track My Order
-  </a>
+<button onclick="startOrder()">Start Ordering</button> <br><br> <a href="/track.html">📦 Track My Order</a>
 
-</div>
-
-<h2>Menu</h2>
-<div id="menu">Loading menu...</div>
-
-<h2>Place Your Order</h2>
-
-<div id="orderForm">
-<input id="name" placeholder="Your Name"><br><br>
-<input id="phone" placeholder="Phone Number"><br><br>
-<input id="address" placeholder="Delivery Address"><br><br>
 </div>
 
 <script>
+function startOrder(){
+  const name=document.getElementById("name").value;
+  const phone=document.getElementById("phone").value;
+  const address=document.getElementById("address").value;
 
-/* ---------- LOAD MENU ---------- */
-function loadMenu(){
-    fetch('/menu')
-    .then(res => res.json())
-    .then(items => {
+  if(!name||!phone||!address){
+    alert("Please fill all details");
+    return;
+  }
 
-        const menuDiv = document.getElementById("menu");
-        menuDiv.innerHTML = "";
+  // save details in browser
+  localStorage.setItem("cust_name",name);
+  localStorage.setItem("cust_phone",phone);
+  localStorage.setItem("cust_address",address);
 
-        if(items.length === 0){
-            menuDiv.innerHTML = "<h3>No food items added by admin yet</h3>";
-            return;
-        }
-
-        items.forEach(item => {
-            menuDiv.innerHTML += `
-            <div class="food">
-                <h2>${item.item_name}</h2>
-                <p><b>Price: ₹${item.price}</b></p>
-                <button onclick="placeOrder('${item.item_name}', ${item.price})">
-                    Order Now
-                </button>
-            </div>
-            `;
-        });
-
-    })
-    .catch(()=>{
-        document.getElementById("menu").innerHTML="Server not responding";
-    });
+  window.location="/menu.html";
 }
-
-loadMenu();
-
-
-/* ---------- PLACE ORDER ---------- */
-async function placeOrder(item, price){
-
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const address = document.getElementById("address").value;
-
-    if(!name || !phone || !address){
-        alert("⚠ Please fill name, phone and address first");
-        return;
-    }
-
-    try{
-        const res = await fetch("/place-order",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify({
-                customer_name: name,
-                phone: phone,
-                address: address,
-                food_item: item,
-                quantity: 1,
-                total_price: price
-            })
-        });
-
-        const data = await res.json();
-
-        if(data.message){
-            alert("✅ Order Confirmed!\nPay Cash on Delivery.");
-        }else{
-            alert("Order failed");
-        }
-
-    }catch(err){
-        alert("Server error");
-    }
-}
-
 </script>
 
 </body>

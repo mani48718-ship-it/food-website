@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>SMK Restaurant</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f5f5f5;
+    text-align:center;
+    margin:0;
+}
+
+header{
+    background:#ff4d4d;
+    color:white;
+    padding:18px;
+    font-size:30px;
+    font-weight:bold;
+}
+
+.nav{
+    margin:20px;
+}
+
+.nav a{
+    background:#ff4d4d;
+    color:white;
+    padding:12px 20px;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:bold;
+    margin:5px;
+    display:inline-block;
+}
+
+.track{
+    background:#007bff !important;
+}
+
+.food{
+    background:white;
+    width:250px;
+    padding:15px;
+    margin:15px;
+    display:inline-block;
+    border-radius:12px;
+    box-shadow:0 0 10px #ccc;
+}
+
+button{
+    background:#28a745;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:16px;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>🍔 SMK Restaurant</header>
+
+<div class="nav">
+    <a href="/menu.html">🍽 Order Food</a>
+    <a href="/track.html" class="track">📦 Track My Order</a>
+</div>
+
+<h2>Menu</h2>
+<div id="menu">Loading menu...</div>
+
+<script>
+
+// LOAD MENU
+function loadMenu(){
+    fetch('/menu')
+    .then(res => res.json())
+    .then(items => {
+
+        const menuDiv = document.getElementById("menu");
+        menuDiv.innerHTML = "";
+
+        if(items.length === 0){
+            menuDiv.innerHTML = "<h3>No food available</h3>";
+            return;
+        }
+
+        items.forEach(item => {
+            menuDiv.innerHTML += `
+            <div class="food">
+                <h3>${item.item_name}</h3>
+                <p><b>₹${item.price}</b></p>
+                <button onclick="placeOrder('${item.item_name}', ${item.price})">
+                    Order Now
+                </button>
+            </div>
+            `;
+        });
+
+    })
+    .catch(()=>{
+        document.getElementById("menu").innerHTML = "Server not responding";
+    });
+}
+
+loadMenu();
+
+
+// PLACE ORDER
+async function placeOrder(item, price){
+
+    const name = localStorage.getItem("cust_name");
+    const phone = localStorage.getItem("cust_phone");
+    const address = localStorage.getItem("cust_address");
+
+    if(!name || !phone || !address){
+        alert("Enter details first");
+        window.location.href="/";
+        return;
+    }
+
+    try{
+        const res = await fetch("/place-order",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                customer_name: name,
+                phone: phone,
+                address: address,
+                food_item: item,
+                quantity: 1,
+                total_price: price
+            })
+        });
+
+        const data = await res.json();
+
+        if(data.message){
+            alert("✅ Order Confirmed!\nCash on Delivery.");
+            window.location.href="/track.html";
+        }else{
+            alert("Order failed");
+        }
+
+    }catch(err){
+        alert("Server error");
+    }
+}
+
+</script>
+
+</body>
+</html>
