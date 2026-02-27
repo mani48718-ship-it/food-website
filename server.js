@@ -78,7 +78,6 @@ async function initializeDatabase() {
   }
 }
 
-initializeDatabase();
 
 /* =====================
    LOGIN
@@ -341,6 +340,16 @@ res.redirect('/admin/menu');
 });
 
 const PORT = process.env.PORT || 3000;
+
+async function startServer(){
+try{
+await initializeDatabase();   // wait DB ready
 app.listen(PORT, ()=>{
-  console.log("Server running on port "+PORT);
+console.log("Server running on port " + PORT);
 });
+}catch(err){
+console.log("Server start failed:", err);
+}
+}
+
+startServer();
