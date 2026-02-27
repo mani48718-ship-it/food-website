@@ -165,7 +165,27 @@ if(!cart[name]){
 }else{
     cart[name].qty++;
 }
+/* INCREASE ITEM */
+function increaseQty(name){
+    cart[name].qty++;
+    saveCart();
+    updateCart();
+}
 
+/* DECREASE ITEM */
+function decreaseQty(name){
+    if(!cart[name]) return;
+
+    cart[name].qty--;
+
+    if(cart[name].qty <= 0){
+        delete cart[name];
+    }
+
+    saveCart();
+    updateCart();
+}
+saveCart();
 updateCart();
 
 
