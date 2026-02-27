@@ -107,7 +107,7 @@ padding-bottom:160px; /* space for cart */
 
 <script>
 
-let cart = {};
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let total = 0;
 
 /* LOAD MENU */
@@ -136,6 +136,11 @@ document.getElementById("menu").innerHTML="Server not responding";
 }
 
 loadMenu();
+updateCart();
+
+function saveCart(){
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
 
 /* ADD TO CART */
 function addToCart(name,price){
@@ -145,6 +150,7 @@ cart[name]={qty:0,price:price};
 }
 
 cart[name].qty++;
+saveCart();
 updateCart();
 }
 
@@ -164,6 +170,9 @@ cartDiv.innerHTML+=`${item} x${qty} = ₹${price}<br>`;
 }
 
 document.getElementById("total").innerText=total;
+
+saveCart();
+
 }
 
 /* CONFIRM ORDER */
