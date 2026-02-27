@@ -91,37 +91,57 @@ overflow-y:auto;
 text-align:left;
 }
 
-/* HEADER BAR */
-.topbar{
+/* HEADER LAYOUT */
+.topHeader{
 display:flex;
-justify-content:space-between;
 align-items:center;
+justify-content:space-between;
 background:#ff4d4d;
 color:white;
-padding:15px 25px;
-font-size:24px;
-font-weight:bold;
+padding:12px 20px;
+position:sticky;
+top:0;
+z-index:1000;
 }
 
-.logo{
+/* LEFT */
+.leftHeader{
+width:80px;
+}
+
+/* CENTER */
+.centerHeader{
 font-size:26px;
+font-weight:bold;
+text-align:center;
+flex:1;
 }
 
-.navBtns{
-display:flex;
-gap:10px;
+/* RIGHT */
+.rightHeader{
+width:140px;
+text-align:right;
+}
+
+/* PROFILE BUTTON */
+.profileBtn{
+background:white;
+color:#ff4d4d;
+padding:8px 12px;
+border-radius:50%;
+cursor:pointer;
+font-size:20px;
+display:inline-block;
 }
 
 /* TRACK BUTTON */
 .trackBtn{
 background:white;
 color:#ff4d4d;
-padding:10px 16px;
+padding:8px 14px;
 border-radius:8px;
 text-decoration:none;
-font-size:16px;
 font-weight:bold;
-transition:0.2s;
 }
 
 .trackBtn:hover
@@ -133,16 +153,28 @@ transition:0.2s;
 
 <body>
 
-<header class="topbar">
-    <div class="logo">🍔 SMK Restaurant</div>
+
+   <header class="topHeader">
 
 
-<div class="navBtns">
+<!-- LEFT : PROFILE -->
+<div class="leftHeader">
+    <div class="profileBtn" onclick="openProfile()">👤</div>
+</div>
+
+<!-- CENTER : RESTAURANT NAME -->
+<div class="centerHeader">
+    🍔 SMK Restaurant
+</div>
+
+<!-- RIGHT : TRACK ORDER -->
+<div class="rightHeader">
     <a href="/track.html" class="trackBtn">📦 Track Order</a>
 </div>
 
 
 </header>
+
 
 
 <div class="mainLayout">
