@@ -328,15 +328,13 @@ res.redirect('/admin/menu');
 });
 
 app.get('/admin/menu/toggle/:id', async (req,res)=>{
-
-await pool.query(
-"UPDATE menu
-SET is_available = NOT is_available
-WHERE id=$1",
-[req.params.id]
-);
-
-res.redirect('/admin/menu');
+  await pool.query(
+    `UPDATE menu
+     SET is_available = NOT is_available
+     WHERE id=$1`,
+    [req.params.id]
+  );
+  res.redirect('/admin/menu');
 });
 
 const PORT = process.env.PORT || 3000;
