@@ -1,10 +1,11 @@
 const express = require('express');
+const cors = require("cors");
 const session = require('express-session');
 const path = require('path');
 const pool = require('./db');
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -317,16 +318,14 @@ app.get('/track-order/:phone', async (req,res)=>{
    MENU API
 ===================== */
 
-app.get('/menu', async (req,res)=>{
-  try{
-    const result = await pool.query(
-      "SELECT * FROM menu WHERE is_available=true ORDER BY id ASC"
-    );
-    res.json(result.rows);
-  }catch(err){
-    console.log("Menu API Error:", err);
-    res.status(500).json({error:"menu error"});
-  }
+app.get("/menu", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM menu ORDER BY id");
+        res.json(result.rows);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Menu load failed" });
+    }
 });
 
 /* =====================

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 <head>
 <title>SMK Restaurant</title>
@@ -99,12 +98,6 @@ overflow-y:auto;
 box-shadow:-3px 0 10px rgba(0,0,0,0.08);
 }
 
-#cartItems{
-max-height:60vh;
-overflow-y:auto;
-text-align:left;
-}
-
 #confirmBtn{
 background:#ff4d4d;
 width:100%;
@@ -130,9 +123,7 @@ margin:120px auto;
 padding:20px;
 border-radius:12px;
 text-align:center;
-box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
-
 .modalContent input{
 width:90%;
 padding:10px;
@@ -143,19 +134,18 @@ border:1px solid #ccc;
 </style>
 
 </head>
-
 <body>
 
 <header class="topHeader">
 <div class="profileBtn" onclick="openProfile()">👤</div>
 <div class="centerHeader">🍔 SMK Restaurant</div>
-<a href="/track.html" class="trackBtn">📦 Track Order</a>
+<a href="track.html" class="trackBtn">📦 Track Order</a>
 </header>
 
 <div class="mainLayout">
 
 <div class="menuArea">
-<h2 style="width:100%;text-align:center;">Menu</h2>
+<h2 style="text-align:center;">Menu</h2>
 <div id="menu">Loading menu...</div>
 </div>
 
@@ -168,26 +158,22 @@ border:1px solid #ccc;
 
 </div>
 
-<!-- PROFILE POPUP -->
-
+<!-- PROFILE -->
 <div id="profileModal" class="modal">
   <div class="modalContent">
     <h2>👤 Your Details</h2>
-
-
-<input id="p_name" placeholder="Your Name">
-<input id="p_phone" placeholder="Phone Number">
-<input id="p_address" placeholder="Delivery Address">
-
-<button onclick="saveProfile()">Save</button>
-<br><br>
-<button onclick="closeProfile()" style="background:#888;">Close</button>
-
-
+    <input id="p_name" placeholder="Your Name">
+    <input id="p_phone" placeholder="Phone Number">
+    <input id="p_address" placeholder="Delivery Address">
+    <button onclick="saveProfile()">Save</button><br><br>
+    <button onclick="closeProfile()" style="background:#888;">Close</button>
   </div>
 </div>
 
 <script>
+
+/* IMPORTANT: PUT YOUR BACKEND RENDER URL HERE */
+const API = "https://YOUR-BACKEND-SERVICE.onrender.com";
 
 /* CART */
 let cart = JSON.parse(localStorage.getItem("cart")) || {};
@@ -197,13 +183,15 @@ function saveCart(){
 localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-/* MENU LOAD */
-function loadMenu(){
-fetch('/menu')
-.then(res=>res.json())
-.then(items=>{
+/* LOAD MENU */
+async function loadMenu(){
+try{
+const res = await fetch(`${API}/menu`);
+const items = await res.json();
+
 const menuDiv=document.getElementById("menu");
 menuDiv.innerHTML="";
+
 items.forEach(item=>{
 menuDiv.innerHTML += `
 <div class="food">
@@ -212,20 +200,15 @@ menuDiv.innerHTML += `
 <button onclick="addToCart('${item.item_name}', ${item.price})">Add</button>
 </div>`;
 });
-});
+}catch(err){
+document.getElementById("menu").innerHTML="⚠ Server not connected";
+}
 }
 
-/* CART FUNCTIONS */
+/* CART */
 function addToCart(name, price){
 if(!cart[name]) cart[name]={qty:1,price:price};
 else cart[name].qty++;
-updateCart();
-}
-
-function increaseQty(name){cart[name].qty++;updateCart();}
-function decreaseQty(name){
-cart[name].qty--;
-if(cart[name].qty<=0) delete cart[name];
 updateCart();
 }
 
@@ -242,13 +225,14 @@ total+=price;
 cartDiv.innerHTML+=`
 <div>
 <b>${item}</b><br>
-<button onclick="decreaseQty('${item}')">−</button>
+<button onclick="cart['${item}'].qty--; if(cart['${item}'].qty<=0) delete cart['${item}']; updateCart();">−</button>
 <span style="margin:0 10px;">${qty}</span>
-<button onclick="increaseQty('${item}')">+</button>
+<button onclick="cart['${item}'].qty++; updateCart();">+</button>
 <div>₹${price}</div>
 <hr>
 </div>`;
 }
+
 document.getElementById("total").innerText=total;
 saveCart();
 }
@@ -266,82 +250,72 @@ document.getElementById("profileModal").style.display="none";
 }
 
 function saveProfile(){
-localStorage.setItem("cust_name",document.getElementById("p_name").value);
-localStorage.setItem("cust_phone",document.getElementById("p_phone").value);
-localStorage.setItem("cust_address",document.getElementById("p_address").value);
+localStorage.setItem("cust_name",p_name.value);
+localStorage.setItem("cust_phone",p_phone.value);
+localStorage.setItem("cust_address",p_address.value);
 alert("Saved ✔");
 closeProfile();
 }
 
-/* PAGE LOAD */
-window.onload=function(){
+/* CONFIRM ORDER */
+async function confirmOrder(){
+
+if(total===0){
+alert("Please add items first");
+return;
+}
+
+const name=localStorage.getItem("cust_name");
+const phone=localStorage.getItem("cust_phone");
+const address=localStorage.getItem("cust_address");
+
+if(!name||!phone||!address){
+alert("Fill profile first 👤");
+openProfile();
+return;
+}
+
+let itemsText="";
+for(let item in cart){
+itemsText+=item+" x"+cart[item].qty+", ";
+}
+
+try{
+const res=await fetch(`${API}/place-order`,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+customer_name:name,
+phone:phone,
+address:address,
+food_item:itemsText,
+quantity:Object.keys(cart).length,
+total_price:total
+})
+});
+
+const data=await res.json();
+
+if(data.message){
+alert("✅ Order placed!");
+localStorage.removeItem("cart");
+cart={};
+updateCart();
+window.location.href="track.html";
+}else{
+alert("Order failed");
+}
+}catch{
+alert("Server not reachable ❌");
+}
+}
+
+/* LOAD */
+window.onload=()=>{
 loadMenu();
 updateCart();
 };
-<script>
-
-async function confirmOrder(){
-
-    if(total === 0){
-        alert("Please add items to cart");
-        return;
-    }
-
-    const name = localStorage.getItem("cust_name");
-    const phone = localStorage.getItem("cust_phone");
-    const address = localStorage.getItem("cust_address");
-
-    if(!name || !phone || !address){
-        alert("Please fill your profile first 👤");
-        openProfile();
-        return;
-    }
-
-    // convert cart to text
-    let itemsText = "";
-    for(let item in cart){
-        itemsText += item + " x" + cart[item].qty + ", ";
-    }
-
-    try{
-        const response = await fetch("/place-order",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                customer_name:name,
-                phone:phone,
-                address:address,
-                food_item:itemsText,
-                quantity:Object.keys(cart).length,
-                total_price:total
-            })
-        });
-
-        const data = await response.json();
-
-        if(data.message){
-
-            alert("✅ Order placed successfully!");
-
-            // clear cart
-            localStorage.removeItem("cart");
-            cart = {};
-            updateCart();
-
-            window.location.href="/track.html";
-
-        }else{
-            alert("Order failed");
-        }
-
-    }catch(err){
-        alert("Server connection error ❌");
-    }
-}
 
 </script>
-
 </body>
 </html>
