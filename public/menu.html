@@ -209,20 +209,24 @@ for(let item in cart){
     total += price;
 
     cartDiv.innerHTML += `
-    <div style="margin-bottom:10px;">
-        <b>${item}</b><br>
+<div style="margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:8px;">
+    <b>${item}</b><br>
 
-        <button onclick="decreaseQty('${item}')" 
-        style="background:#dc3545;padding:5px 10px;">−</button>
+    <button onclick="decreaseQty('${item}')"
+        style="background:#ff4d4d;color:white;border:none;padding:5px 10px;border-radius:5px;">
+        −
+    </button>
 
-        <span style="margin:0 10px;">${qty}</span>
+    <span style="margin:0 10px;font-weight:bold;">${qty}</span>
 
-        <button onclick="increaseQty('${item}')" 
-        style="background:#28a745;padding:5px 10px;">+</button>
+    <button onclick="increaseQty('${item}')"
+        style="background:#28a745;color:white;border:none;padding:5px 10px;border-radius:5px;">
+        +
+    </button>
 
-        <div>₹${price}</div>
-    </div>
-    `;
+    <div>₹${price}</div>
+</div>
+`;
 }
 
 document.getElementById("total").innerText = total;
