@@ -58,16 +58,18 @@ align-items:flex-start;
 .menuArea{
 width:75%;
 padding:20px;
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
+}
+
+#menu{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+gap:25px;
+margin-top:20px;
 }
 
 .food{
 background:white;
-width:250px;
-padding:15px;
-margin:15px;
+padding:20px;
 border-radius:12px;
 box-shadow:0 0 10px #ccc;
 text-align:center;
@@ -172,7 +174,7 @@ border:1px solid #ccc;
   <div class="modalContent">
     <h2>👤 Your Details</h2>
 
-```
+
 <input id="p_name" placeholder="Your Name">
 <input id="p_phone" placeholder="Phone Number">
 <input id="p_address" placeholder="Delivery Address">
@@ -180,7 +182,7 @@ border:1px solid #ccc;
 <button onclick="saveProfile()">Save</button>
 <br><br>
 <button onclick="closeProfile()" style="background:#888;">Close</button>
-```
+
 
   </div>
 </div>
