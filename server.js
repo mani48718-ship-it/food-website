@@ -4,11 +4,6 @@ const path = require('path');
 const pool = require('./db');
 
 const app = express();
-const Razorpay = require('razorpay');
-const razorpay = new Razorpay({
-  key_id: process.env.rzp_test_SKw7GuDrgFH2n2,
-  key_secret: process.env.UZmhAUNHh5fdQT5spoTrMD0L
-});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,11 +30,41 @@ async function createOrdersTable() {
       total_price INT,
       status TEXT DEFAULT 'Preparing',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      is_available BOOLEAN DEFAULT true
     );
   `);
+      const check = await pool.query("SELECT COUNT(*) FROM menu");
 
-  console.log("Orders table ready");
+    if (check.rows[0].count == 0) {
+
+      await pool.query(`
+        INSERT INTO menu (item_name, price) VALUES
+        ('Chicken Biryani',259),
+        ('Mutton Biryani',349),
+        ('Fried Rice',129),
+        ('Shawarma',99),
+        ('Meals',120),
+        ('Chicken 65',179),
+        ('Egg Biryani',199),
+        ('Paneer Biryani',229),
+        ('Butter Chicken',279),
+        ('Tandoori Chicken',299),
+        ('Veg Noodles',139),
+        ('Chicken Rice',170),
+        ('Raggi Mudda',80),
+        ('Chicken Noodles',150);
+      `);
+
+      console.log("Default menu inserted");
+    }
+     console.log("Orders table ready");
+    console.log("Menu table ready");
+
+  } catch (err) {
+    console.log("Menu DB Error:", err);
+  }
 }
+
 createOrdersTable();
 
 /* =====================
@@ -87,20 +112,6 @@ app.post('/place-order', async (req,res)=>{
     console.log(err);
     res.status(500).json({error:"Order failed"});
   }
-});
-
-app.post('/create-payment', async (req,res)=>{
-  const { amount } = req.body;
-
-  const options = {
-    amount: amount * 100,
-    currency: "INR",
-    receipt: "order_rcptid_11"
-  };
-
-  const order = await razorpay.orders.create(options);
-
-  res.json(order);
 });
 
 /* =====================
