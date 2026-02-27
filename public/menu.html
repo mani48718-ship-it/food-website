@@ -8,16 +8,59 @@
 body{
 font-family:Arial;
 background:#f5f5f5;
-text-align:center;
 margin:0;
 }
 
-header{
+/* HEADER */
+.topHeader{
+display:flex;
+align-items:center;
+justify-content:space-between;
 background:#ff4d4d;
 color:white;
-padding:18px;
-font-size:30px;
+padding:12px 20px;
+position:sticky;
+top:0;
+z-index:1000;
+}
+
+.centerHeader{
+font-size:26px;
 font-weight:bold;
+flex:1;
+text-align:center;
+}
+
+.profileBtn{
+background:white;
+color:#ff4d4d;
+padding:8px 12px;
+border-radius:50%;
+cursor:pointer;
+font-size:20px;
+}
+
+.trackBtn{
+background:white;
+color:#ff4d4d;
+padding:8px 14px;
+border-radius:8px;
+text-decoration:none;
+font-weight:bold;
+}
+
+/* LAYOUT */
+.mainLayout{
+display:flex;
+align-items:flex-start;
+}
+
+.menuArea{
+width:75%;
+padding:20px;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
 }
 
 .food{
@@ -25,9 +68,9 @@ background:white;
 width:250px;
 padding:15px;
 margin:15px;
-display:inline-block;
 border-radius:12px;
 box-shadow:0 0 10px #ccc;
+text-align:center;
 }
 
 button{
@@ -40,37 +83,7 @@ cursor:pointer;
 font-size:16px;
 }
 
-
-
-#cartItems{
-max-height:200px;
-overflow-y:auto;
-text-align:left;
-margin-bottom:10px;
-}
-
-#confirmBtn{
-background:#ff4d4d;
-width:100%;
-margin-top:10px;
-}
-
-/* ===== MAIN PAGE LAYOUT ===== */
-.mainLayout{
-display:flex;
-align-items:flex-start;
-}
-
-/* LEFT SIDE (MENU) */
-.menuArea{
-width:75%;
-padding:20px;
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-}
-
-/* RIGHT SIDE (CART PANEL) */
+/* CART */
 #cartBox{
 width:25%;
 min-width:300px;
@@ -84,67 +97,17 @@ overflow-y:auto;
 box-shadow:-3px 0 10px rgba(0,0,0,0.08);
 }
 
-/* CART ITEMS SCROLL */
 #cartItems{
 max-height:60vh;
 overflow-y:auto;
 text-align:left;
 }
 
-/* HEADER LAYOUT */
-.topHeader{
-display:flex;
-align-items:center;
-justify-content:space-between;
+#confirmBtn{
 background:#ff4d4d;
-color:white;
-padding:12px 20px;
-position:sticky;
-top:0;
-z-index:1000;
+width:100%;
+margin-top:10px;
 }
-
-/* LEFT */
-.leftHeader{
-width:80px;
-}
-
-/* CENTER */
-.centerHeader{
-font-size:26px;
-font-weight:bold;
-text-align:center;
-flex:1;
-}
-
-/* RIGHT */
-.rightHeader{
-width:140px;
-text-align:right;
-}
-
-/* PROFILE BUTTON */
-.profileBtn{
-background:white;
-color:#ff4d4d;
-padding:8px 12px;
-border-radius:50%;
-cursor:pointer;
-font-size:20px;
-display:inline-block;
-}
-
-/* TRACK BUTTON */
-.trackBtn{
-background:white;
-color:#ff4d4d;
-padding:8px 14px;
-border-radius:8px;
-text-decoration:none;
-font-weight:bold;
-}
-
-.trackBtn:hover
 
 /* PROFILE MODAL */
 .modal{
@@ -175,257 +138,41 @@ margin:8px;
 border-radius:6px;
 border:1px solid #ccc;
 }
-
 </style>
 
 </head>
 
 <body>
 
-
-   <header class="topHeader">
-
-
-<!-- LEFT : PROFILE -->
-<div class="leftHeader">
-    <div class="profileBtn" onclick="openProfile()">👤</div>
-</div>
-
-<!-- CENTER : RESTAURANT NAME -->
-<div class="centerHeader">
-    🍔 SMK Restaurant
-</div>
-
-<!-- RIGHT : TRACK ORDER -->
-<div class="rightHeader">
-    <a href="/track.html" class="trackBtn">📦 Track Order</a>
-</div>
-
-
+<header class="topHeader">
+<div class="profileBtn" onclick="openProfile()">👤</div>
+<div class="centerHeader">🍔 SMK Restaurant</div>
+<a href="/track.html" class="trackBtn">📦 Track Order</a>
 </header>
-
-
 
 <div class="mainLayout">
 
-    <!-- LEFT SIDE MENU -->
-    <div class="menuArea">
-        <h2 style="width:100%">Menu</h2>
-        <div id="menu">Loading menu...</div>
-    </div>
-
-    <!-- RIGHT SIDE CART -->
-    <div id="cartBox">
-        <h3>🛒 Your Cart</h3>
-        <div id="cartItems">No items</div>
-        <h3>Total: ₹<span id="total">0</span></h3>
-        <button id="confirmBtn" onclick="confirmOrder()">Confirm Order</button>
-    </div>
-
+<div class="menuArea">
+<h2 style="width:100%;text-align:center;">Menu</h2>
+<div id="menu">Loading menu...</div>
 </div>
 
-<script>
-
-/* ---------- CART STORAGE ---------- */
-let cart = JSON.parse(localStorage.getItem("cart")) || {};
-let total = 0;
-
-function saveCart(){
-    localStorage.setItem("cart", JSON.stringify(cart));
-}
-
-/* ---------- LOAD MENU ---------- */
-function loadMenu(){
-fetch('/menu')
-.then(res=>res.json())
-.then(items=>{
-
-const menuDiv=document.getElementById("menu");
-menuDiv.innerHTML="";
-
-items.forEach(item=>{
-menuDiv.innerHTML += `
-<div class="food">
-    <h2>${item.item_name}</h2>
-    <p><b>Price: ₹${item.price}</b></p>
-    <button onclick="addToCart('${item.item_name}', ${item.price})">Add</button>
-</div>`;
-});
-})
-.catch(()=>{
-document.getElementById("menu").innerHTML="Server not responding";
-});
-}
-
-/* ---------- ADD ITEM ---------- */
-function addToCart(name, price){
-    if(!cart[name]){
-        cart[name] = {qty:1,price:price};
-    }else{
-        cart[name].qty++;
-    }
-    saveCart();
-    updateCart();
-}
-
-/* ---------- INCREASE ---------- */
-function increaseQty(name){
-    cart[name].qty++;
-    saveCart();
-    updateCart();
-}
-
-/* ---------- DECREASE ---------- */
-function decreaseQty(name){
-    if(!cart[name]) return;
-
-    cart[name].qty--;
-
-    if(cart[name].qty<=0){
-        delete cart[name];
-    }
-
-    saveCart();
-    updateCart();
-}
-
-/* ---------- UPDATE CART UI ---------- */
-function updateCart(){
-
-const cartDiv=document.getElementById("cartItems");
-cartDiv.innerHTML="";
-total=0;
-
-for(let item in cart){
-
-let qty=cart[item].qty;
-let price=cart[item].price*qty;
-total+=price;
-
-cartDiv.innerHTML+=`
-<div style="margin-bottom:10px;border-bottom:1px solid #eee;padding-bottom:8px;">
-<b>${item}</b><br>
-
-<button onclick="decreaseQty('${item}')" style="background:#dc3545;">−</button>
-<span style="margin:0 10px;">${qty}</span>
-<button onclick="increaseQty('${item}')" style="background:#28a745;">+</button>
-
-<div>₹${price}</div>
-</div>`;
-}
-
-document.getElementById("total").innerText=total;
-saveCart();
-}
-
-/* ---------- CONFIRM ORDER ---------- */
-async function confirmOrder(){
-
-if(total==0){
-alert("Add items first");
-return;
-}
-
-const name=localStorage.getItem("cust_name");
-const phone=localStorage.getItem("cust_phone");
-const address=localStorage.getItem("cust_address");
-
-if(!name||!phone||!address){
-alert("Enter details first");
-window.location="/";
-return;
-}
-
-let itemsText="";
-for(let item in cart){
-itemsText+=`${item} x${cart[item].qty}, `;
-}
-
-const res=await fetch("/place-order",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-customer_name:name,
-phone:phone,
-address:address,
-food_item:itemsText,
-quantity:1,
-total_price:total
-})
-});
-
-const data=await res.json();
-
-if(data.message){
-alert("✅ Order Confirmed!");
-
-localStorage.removeItem("cart");
-cart={};
-updateCart();
-
-window.location.href="/track.html";
-}else{
-alert("Order failed");
-}
-}
-
-/* ---------- PAGE LOAD ---------- */
-window.onload=function(){
-loadMenu();
-updateCart();
-};
-
-/* OPEN PROFILE */
-function openProfile(){
-document.getElementById("profileModal").style.display="block";
-
-/* load saved data */
-document.getElementById("p_name").value =
-localStorage.getItem("cust_name") || "";
-
-document.getElementById("p_phone").value =
-localStorage.getItem("cust_phone") || "";
-
-document.getElementById("p_address").value =
-localStorage.getItem("cust_address") || "";
-}
-
-/* CLOSE */
-function closeProfile(){
-document.getElementById("profileModal").style.display="none";
-}
-
-/* SAVE PROFILE */
-function saveProfile(){
-const name=document.getElementById("p_name").value;
-const phone=document.getElementById("p_phone").value;
-const address=document.getElementById("p_address").value;
-
-if(!name||!phone||!address){
-alert("Please fill all details");
-return;
-}
-
-localStorage.setItem("cust_name",name);
-localStorage.setItem("cust_phone",phone);
-localStorage.setItem("cust_address",address);
-
-alert("Details saved ✔");
-closeProfile();
-}
-
-</script>
+<div id="cartBox">
+<h3>🛒 Your Cart</h3>
+<div id="cartItems">No items</div>
+<h3>Total: ₹<span id="total">0</span></h3>
+<button id="confirmBtn" onclick="confirmOrder()">Confirm Order</button>
+</div>
 
 </div>
 
 <!-- PROFILE POPUP -->
 
 <div id="profileModal" class="modal">
-
   <div class="modalContent">
     <h2>👤 Your Details</h2>
 
-
+```
 <input id="p_name" placeholder="Your Name">
 <input id="p_phone" placeholder="Phone Number">
 <input id="p_address" placeholder="Delivery Address">
@@ -433,11 +180,103 @@ closeProfile();
 <button onclick="saveProfile()">Save</button>
 <br><br>
 <button onclick="closeProfile()" style="background:#888;">Close</button>
-
+```
 
   </div>
-
 </div>
+
+<script>
+
+/* CART */
+let cart = JSON.parse(localStorage.getItem("cart")) || {};
+let total = 0;
+
+function saveCart(){
+localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+/* MENU LOAD */
+function loadMenu(){
+fetch('/menu')
+.then(res=>res.json())
+.then(items=>{
+const menuDiv=document.getElementById("menu");
+menuDiv.innerHTML="";
+items.forEach(item=>{
+menuDiv.innerHTML += `
+<div class="food">
+<h2>${item.item_name}</h2>
+<p><b>Price: ₹${item.price}</b></p>
+<button onclick="addToCart('${item.item_name}', ${item.price})">Add</button>
+</div>`;
+});
+});
+}
+
+/* CART FUNCTIONS */
+function addToCart(name, price){
+if(!cart[name]) cart[name]={qty:1,price:price};
+else cart[name].qty++;
+updateCart();
+}
+
+function increaseQty(name){cart[name].qty++;updateCart();}
+function decreaseQty(name){
+cart[name].qty--;
+if(cart[name].qty<=0) delete cart[name];
+updateCart();
+}
+
+function updateCart(){
+const cartDiv=document.getElementById("cartItems");
+cartDiv.innerHTML="";
+total=0;
+
+for(let item in cart){
+let qty=cart[item].qty;
+let price=cart[item].price*qty;
+total+=price;
+
+cartDiv.innerHTML+=`
+<div>
+<b>${item}</b><br>
+<button onclick="decreaseQty('${item}')">−</button>
+<span style="margin:0 10px;">${qty}</span>
+<button onclick="increaseQty('${item}')">+</button>
+<div>₹${price}</div>
+<hr>
+</div>`;
+}
+document.getElementById("total").innerText=total;
+saveCart();
+}
+
+/* PROFILE */
+function openProfile(){
+document.getElementById("profileModal").style.display="block";
+document.getElementById("p_name").value=localStorage.getItem("cust_name")||"";
+document.getElementById("p_phone").value=localStorage.getItem("cust_phone")||"";
+document.getElementById("p_address").value=localStorage.getItem("cust_address")||"";
+}
+
+function closeProfile(){
+document.getElementById("profileModal").style.display="none";
+}
+
+function saveProfile(){
+localStorage.setItem("cust_name",document.getElementById("p_name").value);
+localStorage.setItem("cust_phone",document.getElementById("p_phone").value);
+localStorage.setItem("cust_address",document.getElementById("p_address").value);
+alert("Saved ✔");
+closeProfile();
+}
+
+/* PAGE LOAD */
+window.onload=function(){
+loadMenu();
+updateCart();
+};
+</script>
 
 </body>
 </html>
