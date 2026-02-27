@@ -120,13 +120,17 @@ const menuDiv=document.getElementById("menu");
 menuDiv.innerHTML="";
 
 items.forEach(item=>{
-menuDiv.innerHTML+=`
+menuDiv.innerHTML += `
+
 <div class="food">
-<h2>${item.item_name}</h2>
-<p><b>₹${item.price}</b></p>
-<button onclick="addToCart('${item.item_name}',${item.price})">Add</button>
+    <h2>${item.item_name}</h2>
+    <p><b>Price: ₹${item.price}</b></p>
+    <button onclick="addToCart('${item.item_name}', ${item.price})">
+        Add
+    </button>
 </div>
 `;
+
 });
 
 })
@@ -172,9 +176,7 @@ cartDiv.innerHTML+=`${item} x${qty} = ₹${price}<br>`;
 }
 
 document.getElementById("total").innerText = total;
-
 saveCart();   // must be here
-
 }
 
 /* CONFIRM ORDER */
@@ -214,14 +216,24 @@ total_price:total
 })
 });
 
-const data=await res.json();
+const data = await res.json();
 
 if(data.message){
-alert("✅ Order Placed!\nBill: ₹"+total);
-window.location="/track.html";
+alert("✅ Order Confirmed!");
+
+
+// CLEAR CART AFTER SUCCESS
+localStorage.removeItem("cart");
+cart = {};
+updateCart();
+
+window.location.href="/track.html";
+
+
 }else{
 alert("Order failed");
 }
+
 
 }
 
