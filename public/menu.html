@@ -173,7 +173,7 @@ border:1px solid #ccc;
 <script>
 
 /* IMPORTANT: PUT YOUR BACKEND RENDER URL HERE */
-const API = "https://YOUR-BACKEND-SERVICE.onrender.com";
+const API = "";
 
 /* CART */
 let cart = JSON.parse(localStorage.getItem("cart")) || {};
@@ -186,7 +186,7 @@ localStorage.setItem("cart", JSON.stringify(cart));
 /* LOAD MENU */
 async function loadMenu(){
 try{
-const res = await fetch(`${API}/menu`);
+const res = await fetch(`/menu`);
 const items = await res.json();
 
 const menuDiv=document.getElementById("menu");
@@ -281,7 +281,7 @@ itemsText+=item+" x"+cart[item].qty+", ";
 }
 
 try{
-const res=await fetch(`${API}/place-order`,{
+const res=await fetch(`/place-order`,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
