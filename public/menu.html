@@ -91,13 +91,59 @@ overflow-y:auto;
 text-align:left;
 }
 
+/* HEADER BAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#ff4d4d;
+color:white;
+padding:15px 25px;
+font-size:24px;
+font-weight:bold;
+}
+
+.logo{
+font-size:26px;
+}
+
+.navBtns{
+display:flex;
+gap:10px;
+}
+
+/* TRACK BUTTON */
+.trackBtn{
+background:white;
+color:#ff4d4d;
+padding:10px 16px;
+border-radius:8px;
+text-decoration:none;
+font-size:16px;
+font-weight:bold;
+transition:0.2s;
+}
+
+.trackBtn:hover
+
+
 </style>
 
 </head>
 
 <body>
 
-<header>🍔 SMK Restaurant</header>
+<header class="topbar">
+    <div class="logo">🍔 SMK Restaurant</div>
+
+```
+<div class="navBtns">
+    <a href="/track.html" class="trackBtn">📦 Track Order</a>
+</div>
+```
+
+</header>
+
 
 <div class="mainLayout">
 
