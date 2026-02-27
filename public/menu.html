@@ -29,30 +29,6 @@ display:inline-block;
 border-radius:12px;
 box-shadow:0 0 10px #ccc;
 }
-/* LAYOUT */
-.container{
-display:flex;
-align-items:flex-start;
-}
-
-/* LEFT MENU AREA */
-#menu{
-flex:3;
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-}
-
-/* RIGHT CART PANEL */
-#cartBox{
-position:sticky;
-top:90px;
-right:auto;
-bottom:auto;
-width:280px;
-margin:20px;
-height:fit-content;
-}
 
 button{
 background:#28a745;
@@ -64,19 +40,7 @@ cursor:pointer;
 font-size:16px;
 }
 
-#cartBox{
-position:fixed;
-bottom:20px;
-right:20px;
-width:260px;
-max-height:70vh;
-overflow:auto;
-background:white;
-padding:15px;
-border-radius:14px;
-box-shadow:0 8px 25px rgba(0,0,0,0.25);
-z-index:999;
-}
+
 
 #cartItems{
 max-height:200px;
@@ -91,6 +55,41 @@ width:100%;
 margin-top:10px;
 }
 
+/* ===== MAIN PAGE LAYOUT ===== */
+.mainLayout{
+display:flex;
+align-items:flex-start;
+}
+
+/* LEFT SIDE (MENU) */
+.menuArea{
+width:75%;
+padding:20px;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+/* RIGHT SIDE (CART PANEL) */
+#cartBox{
+width:25%;
+min-width:300px;
+background:white;
+padding:15px;
+border-left:3px solid #eee;
+height:calc(100vh - 80px);
+position:sticky;
+top:80px;
+overflow-y:auto;
+box-shadow:-3px 0 10px rgba(0,0,0,0.08);
+}
+
+/* CART ITEMS SCROLL */
+#cartItems{
+max-height:60vh;
+overflow-y:auto;
+text-align:left;
+}
 
 </style>
 
@@ -100,18 +99,22 @@ margin-top:10px;
 
 <header>🍔 SMK Restaurant</header>
 
-<div class="container">
+<div class="mainLayout">
 
-<div style="flex:3;">
-<h2>Menu</h2>
-<div id="menu">Loading menu...</div>
-</div>
+    <!-- LEFT SIDE MENU -->
+    <div class="menuArea">
+        <h2 style="width:100%">Menu</h2>
+        <div id="menu">Loading menu...</div>
+    </div>
 
-<div id="cartBox">
-<h3>🛒 Your Cart</h3>
-<div id="cartItems">No items</div>
-<h3>Total: ₹<span id="total">0</span></h3>
-<button id="confirmBtn" onclick="confirmOrder()">Confirm Order</button>
+    <!-- RIGHT SIDE CART -->
+    <div id="cartBox">
+        <h3>🛒 Your Cart</h3>
+        <div id="cartItems">No items</div>
+        <h3>Total: ₹<span id="total">0</span></h3>
+        <button id="confirmBtn" onclick="confirmOrder()">Confirm Order</button>
+    </div>
+
 </div>
 
 <script>
