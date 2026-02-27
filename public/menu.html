@@ -54,22 +54,11 @@ box-shadow:0 8px 25px rgba(0,0,0,0.25);
 z-index:999;
 }
 
-/* scroll cart items */
 #cartItems{
 max-height:200px;
 overflow-y:auto;
 text-align:left;
 margin-bottom:10px;
-}
-
-/* MOBILE VIEW */
-@media (max-width:600px){
-#cartBox{
-left:10px;
-right:10px;
-bottom:10px;
-width:auto;
-}
 }
 
 #confirmBtn{
@@ -82,9 +71,8 @@ margin-top:10px;
 display:flex;
 flex-wrap:wrap;
 justify-content:center;
-padding-bottom:160px; /* space for cart */
+padding-bottom:160px;
 }
-
 </style>
 
 </head>
@@ -107,18 +95,15 @@ padding-bottom:160px; /* space for cart */
 
 <script>
 
-/* LOAD CART FROM BROWSER MEMORY */
+/* ---------- CART STORAGE ---------- */
 let cart = JSON.parse(localStorage.getItem("cart")) || {};
 let total = 0;
 
-/* SAVE CART */
 function saveCart(){
-localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-
-
-/* LOAD MENU */
+/* ---------- LOAD MENU ---------- */
 function loadMenu(){
 fetch('/menu')
 .then(res=>res.json())
@@ -129,112 +114,80 @@ menuDiv.innerHTML="";
 
 items.forEach(item=>{
 menuDiv.innerHTML += `
-
 <div class="food">
     <h2>${item.item_name}</h2>
     <p><b>Price: ₹${item.price}</b></p>
-    <button onclick="addToCart('${item.item_name}', ${item.price})">
-        Add
-    </button>
-</div>
-`;
-
+    <button onclick="addToCart('${item.item_name}', ${item.price})">Add</button>
+</div>`;
 });
-
 })
 .catch(()=>{
 document.getElementById("menu").innerHTML="Server not responding";
 });
 }
 
-window.onload = function(){
-    loadMenu();
+/* ---------- ADD ITEM ---------- */
+function addToCart(name, price){
+    if(!cart[name]){
+        cart[name] = {qty:1,price:price};
+    }else{
+        cart[name].qty++;
+    }
+    saveCart();
     updateCart();
 }
 
-function saveCart(){
-    localStorage.setItem("cart", JSON.stringify(cart));
-}
-
-/* ADD TO CART */
-function addToCart(name, price){
-
-
-if(!cart[name]){
-    cart[name] = { qty:1, price:price };
-}else{
-    cart[name].qty++;
-}
-/* INCREASE ITEM */
+/* ---------- INCREASE ---------- */
 function increaseQty(name){
     cart[name].qty++;
     saveCart();
     updateCart();
 }
 
-/* DECREASE ITEM */
+/* ---------- DECREASE ---------- */
 function decreaseQty(name){
     if(!cart[name]) return;
 
     cart[name].qty--;
 
-    if(cart[name].qty <= 0){
+    if(cart[name].qty<=0){
         delete cart[name];
     }
 
     saveCart();
     updateCart();
 }
-saveCart();
-updateCart();
 
-
-}
-
-
-/* UPDATE CART UI */
+/* ---------- UPDATE CART UI ---------- */
 function updateCart(){
 
-
-const cartDiv = document.getElementById("cartItems");
-cartDiv.innerHTML = "";
-
-total = 0;
+const cartDiv=document.getElementById("cartItems");
+cartDiv.innerHTML="";
+total=0;
 
 for(let item in cart){
 
-    let qty = cart[item].qty;
-    let price = cart[item].price * qty;
+let qty=cart[item].qty;
+let price=cart[item].price*qty;
+total+=price;
 
-    total += price;
+cartDiv.innerHTML+=`
+<div style="margin-bottom:10px;border-bottom:1px solid #eee;padding-bottom:8px;">
+<b>${item}</b><br>
 
-    cartDiv.innerHTML += `
-<div style="margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:8px;">
-    <b>${item}</b><br>
+<button onclick="decreaseQty('${item}')" style="background:#dc3545;">−</button>
+<span style="margin:0 10px;">${qty}</span>
+<button onclick="increaseQty('${item}')" style="background:#28a745;">+</button>
 
-    <button onclick="decreaseQty('${item}')"
-        style="background:#ff4d4d;color:white;border:none;padding:5px 10px;border-radius:5px;">
-        −
-    </button>
-
-    <span style="margin:0 10px;font-weight:bold;">${qty}</span>
-
-    <button onclick="increaseQty('${item}')"
-        style="background:#28a745;color:white;border:none;padding:5px 10px;border-radius:5px;">
-        +
-    </button>
-
-    <div>₹${price}</div>
-</div>
-`;
+<div>₹${price}</div>
+</div>`;
 }
 
-document.getElementById("total").innerText = total;
+document.getElementById("total").innerText=total;
 saveCart();
 }
 
-
-/* CONFIRM ORDER */
+/* ---------- CONFIRM ORDER ---------- */
 async function confirmOrder(){
 
 if(total==0){
@@ -252,7 +205,6 @@ window.location="/";
 return;
 }
 
-/* create food string */
 let itemsText="";
 for(let item in cart){
 itemsText+=`${item} x${cart[item].qty}, `;
@@ -271,34 +223,28 @@ total_price:total
 })
 });
 
-const data = await res.json();
+const data=await res.json();
 
 if(data.message){
 alert("✅ Order Confirmed!");
 
-
-// CLEAR CART AFTER SUCCESS
 localStorage.removeItem("cart");
-cart = {};
+cart={};
 updateCart();
 
 window.location.href="/track.html";
-
-
 }else{
 alert("Order failed");
 }
-
-
 }
-window.onload = function(){
+
+/* ---------- PAGE LOAD ---------- */
+window.onload=function(){
 loadMenu();
 updateCart();
-}
+};
 
 </script>
 
 </body>
 </html>
-
-
