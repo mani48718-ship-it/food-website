@@ -143,6 +143,19 @@ app.get('/admin', async (req,res)=>{
   <body>
   <h1>Restaurant Orders</h1>
 
+  <br>
+<a href="/admin/menu" style="
+background:#28a745;
+color:white;
+padding:10px 18px;
+text-decoration:none;
+border-radius:6px;
+font-weight:bold;
+">
+🍽 Manage Menu
+</a>
+<br><br>
+
   <table border="1" cellpadding="10">
   <tr>
     <th>ID</th>
