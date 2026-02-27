@@ -146,6 +146,35 @@ font-weight:bold;
 
 .trackBtn:hover
 
+/* PROFILE MODAL */
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+z-index:2000;
+}
+
+.modalContent{
+background:white;
+width:300px;
+margin:120px auto;
+padding:20px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modalContent input{
+width:90%;
+padding:10px;
+margin:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
 
 </style>
 
@@ -346,8 +375,69 @@ loadMenu();
 updateCart();
 };
 
+/* OPEN PROFILE */
+function openProfile(){
+document.getElementById("profileModal").style.display="block";
+
+/* load saved data */
+document.getElementById("p_name").value =
+localStorage.getItem("cust_name") || "";
+
+document.getElementById("p_phone").value =
+localStorage.getItem("cust_phone") || "";
+
+document.getElementById("p_address").value =
+localStorage.getItem("cust_address") || "";
+}
+
+/* CLOSE */
+function closeProfile(){
+document.getElementById("profileModal").style.display="none";
+}
+
+/* SAVE PROFILE */
+function saveProfile(){
+const name=document.getElementById("p_name").value;
+const phone=document.getElementById("p_phone").value;
+const address=document.getElementById("p_address").value;
+
+if(!name||!phone||!address){
+alert("Please fill all details");
+return;
+}
+
+localStorage.setItem("cust_name",name);
+localStorage.setItem("cust_phone",phone);
+localStorage.setItem("cust_address",address);
+
+alert("Details saved ✔");
+closeProfile();
+}
+
 </script>
 
 </div>
+
+<!-- PROFILE POPUP -->
+
+<div id="profileModal" class="modal">
+
+  <div class="modalContent">
+    <h2>👤 Your Details</h2>
+
+
+<input id="p_name" placeholder="Your Name">
+<input id="p_phone" placeholder="Phone Number">
+<input id="p_address" placeholder="Delivery Address">
+
+<button onclick="saveProfile()">Save</button>
+<br><br>
+<button onclick="closeProfile()" style="background:#888;">Close</button>
+
+
+  </div>
+
+</div>
+
 </body>
 </html>

@@ -62,69 +62,78 @@
         .title{
             margin-bottom:10px;
         }
+        .card{
+background:white;
+width:320px;
+margin:80px auto;
+padding:25px;
+border-radius:12px;
+box-shadow:0 0 12px #ccc;
+text-align:center;
+}
+
+.card input{
+width:90%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.card button{
+background:#ff4d4d;
+color:white;
+padding:12px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
     </style>
 </head>
 
 <body>
 
-<div class="box">
+<header class="topHeader">
+<div style="color:white;font-weight:bold;">🍔 SMK Restaurant</div>
+<a href="/menu.html" class="trackBtn">🍽 Back to Menu</a>
+</header>
 
-    <div style="margin:15px;">
-  <a href="/" style="
-    background:#28a745;
-    color:white;
-    padding:10px 18px;
-    text-decoration:none;
-    border-radius:6px;
-    font-weight:bold;">
-    🍽 Back to Order Menu
-  </a>
-</div>
+<div class="card">
+<h2>📦 Track Your Order</h2>
 
-<h2 class="title">📦 Track Your Order</h2>
-
-<input id="phone" placeholder="Enter your mobile number">
-<br>
+<input id="phone" placeholder="Enter your phone number">
+<br><br>
 <button onclick="track()">Track Order</button>
 
-<div id="result"></div>
-
+<div id="result" style="margin-top:20px;font-size:18px;"></div>
 </div>
+
 
 <script>
 async function track(){
 
-    const phone = document.getElementById("phone").value;
+const phone=document.getElementById("phone").value;
 
-    if(!phone){
-        alert("Enter phone number");
-        return;
-    }
-
-    const res = await fetch("/track-order/" + phone);
-    const data = await res.json();
-
-    const resultDiv = document.getElementById("result");
-
-    if(!data.found){
-        resultDiv.innerHTML = "<h3>No order found</h3>";
-        return;
-    }
-
-    let stages = ["Preparing","Ready","Out for Delivery","Delivered"];
-
-    let html = `<h3>🍽 Food: ${data.food}</h3><br>`;
-
-    stages.forEach(stage=>{
-        if(stage === data.status){
-            html += `<div class="stage done">✔ ${stage}</div>`;
-        }else{
-            html += `<div class="stage pending">• ${stage}</div>`;
-        }
-    });
-
-    resultDiv.innerHTML = html;
+if(!phone){
+alert("Enter phone number");
+return;
 }
+
+const res=await fetch("/track-order/"+phone);
+const data=await res.json();
+
+const result=document.getElementById("result");
+
+if(data.found){
+result.innerHTML=
+"<b>Food:</b> "+data.food+
+"<br><b>Status:</b> "+data.status;
+}else{
+result.innerHTML="No order found";
+}
+}
+
+
 </script>
 
 </body>
