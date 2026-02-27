@@ -341,15 +341,12 @@ res.redirect('/admin/menu');
 
 const PORT = process.env.PORT || 3000;
 
-async function startServer(){
-try{
-await initializeDatabase();   // wait DB ready
-app.listen(PORT, ()=>{
-console.log("Server running on port " + PORT);
+// 1️⃣ Start server immediately (VERY IMPORTANT for Render)
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
 });
-}catch(err){
-console.log("Server start failed:", err);
-}
-}
 
-startServer();
+// 2️⃣ Then connect database in background
+initializeDatabase()
+  .then(() => console.log("Database initialized"))
+  .catch(err => console.log("Database init error:", err));
