@@ -18,25 +18,40 @@ app.use(session({
 /* =====================
    CREATE TABLE
 ===================== */
-async function createOrdersTable() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS orders (
-      id SERIAL PRIMARY KEY,
-      customer_name TEXT,
-      phone TEXT,
-      address TEXT,
-      food_item TEXT,
-      quantity INT,
-      total_price INT,
-      status TEXT DEFAULT 'Preparing',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      is_available BOOLEAN DEFAULT true
-    );
-  `);
-      const check = await pool.query("SELECT COUNT(*) FROM menu");
+async function initializeDatabase() {
+  try {
+
+    // Orders table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        customer_name TEXT,
+        phone TEXT,
+        address TEXT,
+        food_item TEXT,
+        quantity INT,
+        total_price INT,
+        status TEXT DEFAULT 'Preparing',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("Orders table ready");
+
+    // Menu table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS menu (
+        id SERIAL PRIMARY KEY,
+        item_name TEXT,
+        price INT,
+        is_available BOOLEAN DEFAULT true
+      );
+    `);
+    console.log("Menu table ready");
+
+    // Insert default menu if empty
+    const check = await pool.query("SELECT COUNT(*) FROM menu");
 
     if (check.rows[0].count == 0) {
-
       await pool.query(`
         INSERT INTO menu (item_name, price) VALUES
         ('Chicken Biryani',259),
@@ -57,15 +72,13 @@ async function createOrdersTable() {
 
       console.log("Default menu inserted");
     }
-     console.log("Orders table ready");
-    console.log("Menu table ready");
 
   } catch (err) {
-    console.log("Menu DB Error:", err);
+    console.log("Database init error:", err);
   }
 }
 
-createOrdersTable();
+initializeDatabase();
 
 /* =====================
    LOGIN
