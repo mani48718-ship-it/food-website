@@ -193,12 +193,16 @@ const menuDiv=document.getElementById("menu");
 menuDiv.innerHTML="";
 
 items.forEach(item=>{
-menuDiv.innerHTML += `
-<div class="food">
-<h2>${item.item_name}</h2>
-<p><b>Price: ₹${item.price}</b></p>
-<button onclick="addToCart('${item.item_name}', ${item.price})">Add</button>
-</div>`;
+
+    // hide item if out of stock
+    if(item.is_available === false) return;
+
+    menuDiv.innerHTML += `
+    <div class="food">
+    <h2>${item.item_name}</h2>
+    <p><b>Price: ₹${item.price}</b></p>
+    <button onclick="addToCart('${item.item_name}', ${item.price})">Add</button>
+    </div>`;
 });
 }catch(err){
 document.getElementById("menu").innerHTML="⚠ Server not connected";
