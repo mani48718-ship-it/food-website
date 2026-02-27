@@ -235,6 +235,22 @@ app.get('/track-order/:phone', async (req,res)=>{
 });
 
 /* =====================
+   MENU API
+===================== */
+
+app.get('/menu', async (req,res)=>{
+  try{
+    const result = await pool.query(
+      "SELECT * FROM menu WHERE is_available=true ORDER BY id ASC"
+    );
+    res.json(result.rows);
+  }catch(err){
+    console.log("Menu API Error:", err);
+    res.status(500).json({error:"menu error"});
+  }
+});
+
+/* =====================
    SERVER
 ===================== */
 
