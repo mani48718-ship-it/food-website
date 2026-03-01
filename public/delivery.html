@@ -54,19 +54,34 @@ cursor:pointer;
 
 <script>
 
-function start(){
+
+async function start(){
 
 const id=document.getElementById("orderId").value;
 
 if(!id){
-alert("Enter order ID");
+alert("Enter order ID first");
 return;
 }
 
-navigator.geolocation.watchPosition(async(pos)=>{
+// Check browser support
+if(!navigator.geolocation){
+alert("Your phone does not support GPS");
+return;
+}
 
-const lat=pos.coords.latitude;
-const lng=pos.coords.longitude;
+// Ask permission first
+navigator.geolocation.getCurrentPosition(
+function(pos){
+
+document.getElementById("status").innerText =
+"GPS connected. Starting live tracking...";
+
+// Start live tracking
+navigator.geolocation.watchPosition(async function(position){
+
+const lat=position.coords.latitude;
+const lng=position.coords.longitude;
 
 document.getElementById("status").innerText =
 "Sending location: "+lat.toFixed(5)+", "+lng.toFixed(5);
@@ -77,9 +92,17 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify({orderId:id,lat:lat,lng:lng})
 });
 
-},{enableHighAccuracy:true});
+},
+function(error){
+document.getElementById("status").innerText =
+"GPS error: Please enable location permission";
+},
+{enableHighAccuracy:true});
 
-alert("Location sharing started. Keep this page open.");
+},
+function(error){
+alert("Please allow location permission in browser settings");
+});
 
 }
 
