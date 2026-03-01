@@ -16,6 +16,15 @@ app.use(session({
   saveUninitialized: false
 }));
 
+// ===== ADMIN LOGIN PROTECTION =====
+function requireAdmin(req, res, next){
+    if(req.session && req.session.loggedIn){
+        next();
+    }else{
+        res.redirect('/login');
+    }
+}
+
 /* =====================
    CREATE TABLE
 ===================== */
@@ -208,7 +217,7 @@ font-weight:bold;
 MENU MANAGEMENT (ADMIN)
 ===================== */
 
-app.get('/admin/menu', async (req,res)=>{
+app.get('/admin/menu', requireAdmin, async (req,res)=>{
 
 if(!req.session.loggedIn){
 return res.redirect('/login');
@@ -260,7 +269,7 @@ html += `
 res.send(html);
 });
 
-app.post('/admin/menu/add', async (req,res)=>{
+app.post('/admin/menu/add', requireAdmin, async (req,res)=>{
 const { item_name, price } = req.body;
 
 await pool.query(
@@ -331,7 +340,7 @@ app.get("/menu", async (req, res) => {
 /* =====================
    SERVER
 ===================== */
-app.get('/admin/menu/delete/:id', async (req,res)=>{
+app.get('/admin/menu/delete/:id', requireAdmin, async (req,res)=>{
 await pool.query(
 "DELETE FROM menu WHERE id=$1",
 [req.params.id]
@@ -339,7 +348,7 @@ await pool.query(
 res.redirect('/admin/menu');
 });
 
-app.get('/admin/menu/toggle/:id', async (req,res)=>{
+app.get('/admin/menu/toggle/:id', requireAdmin, async (req,res)=>{
   await pool.query(
     `UPDATE menu
      SET is_available = NOT is_available
@@ -352,7 +361,7 @@ app.get('/admin/menu/toggle/:id', async (req,res)=>{
 // ---------------- ADMIN ORDERS ----------------
 
 // get all orders
-app.get("/admin/orders", async (req, res) => {
+app.get("/admin/orders", requireAdmin, async (req, res) => {
     try{
         const result = await pool.query(
             "SELECT * FROM orders ORDER BY id DESC"
@@ -365,7 +374,7 @@ app.get("/admin/orders", async (req, res) => {
 });
 
 // update order status
-app.post("/admin/update-status/:id/:status", async (req, res) => {
+app.post("/admin/update-status/:id/:status", requireAdmin, async (req, res) => {
     try {
         const id = req.params.id;
 
@@ -419,7 +428,7 @@ setInterval(async ()=>{
 }, 86400000);
 
 // delete order permanently
-app.delete("/admin/delete-order/:id", async (req, res) => {
+app.delete("/admin/delete-order/:id", requireAdmin, async (req, res) => {
     try{
         const id = req.params.id;
 
@@ -434,6 +443,11 @@ app.delete("/admin/delete-order/:id", async (req, res) => {
         res.status(500).send("Delete failed");
     }
 });
+
+app.get('/admin_orders.html', requireAdmin, (req,res)=>{
+    res.sendFile(path.join(__dirname,'public','admin_orders.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 
 // 1️⃣ Start server immediately (VERY IMPORTANT for Render)
