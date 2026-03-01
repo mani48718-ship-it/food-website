@@ -132,11 +132,18 @@ payment_method
 
 try {
 
+// Decide status based on payment method
+let orderStatus = 'PENDING';
+
+if(payment_method === 'COD'){
+    orderStatus = 'CONFIRMED';
+}
+
 await pool.query(
 `INSERT INTO orders
 (customer_name, phone, address, food_item, quantity, total_price, status)
-VALUES ($1,$2,$3,$4,$5,$6,'PENDING')`,
-[customer_name, phone, address, food_item, quantity, total_price]
+VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+[customer_name, phone, address, food_item, quantity, total_price, orderStatus]
 );
 
 res.json({message:"Order received"});
