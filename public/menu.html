@@ -141,6 +141,17 @@ border:1px solid #ccc;
 <div class="centerHeader">🍔 SMK Restaurant</div>
 <a href="track.html" class="trackBtn">📦 Track Order</a>
 </header>
+<div style="padding:10px 20px;">
+<a href="/categories.html" style="
+background:#333;
+color:white;
+padding:8px 14px;
+border-radius:8px;
+text-decoration:none;
+font-weight:bold;">
+⬅ Back to Categories
+</a>
+</div>
 
 <div class="mainLayout">
 
@@ -172,6 +183,13 @@ border:1px solid #ccc;
 
 <script>
 
+  // show category name in page title
+const paramsTitle = new URLSearchParams(window.location.search);
+const catTitle = paramsTitle.get("category");
+if(catTitle){
+    document.querySelector(".menuArea h2").innerText = catTitle + " Menu";
+}
+
 /* IMPORTANT: PUT YOUR BACKEND RENDER URL HERE */
 const API = "";
 
@@ -187,7 +205,12 @@ localStorage.setItem("cart", JSON.stringify(cart));
 
 async function loadMenu(){
     try{
-        const res = await fetch("/menu");
+        // read category from URL
+        const params = new URLSearchParams(window.location.search);
+        const category = params.get("category");
+
+        // call backend with category
+        const res = await fetch("/menu?category=" + encodeURIComponent(category));
         const items = await res.json();
 
         const menuDiv = document.getElementById("menu");
