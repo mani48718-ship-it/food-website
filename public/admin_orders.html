@@ -27,7 +27,8 @@ color:white;
 <h2>📦 Live Orders</h2>
 <div id="orders">Loading...</div>
 
- <script>
+
+<script>
 
 function formatDate(time){
     if(!time) return "Not delivered yet";
@@ -35,83 +36,84 @@ function formatDate(time){
     return d.toLocaleString();
 }
 
-
 async function loadOrders(){
-    const res = await fetch(window.location.origin + "/admin/orders");
-    const orders = await res.json();
-if(!Array.isArray(orders)){
-    document.getElementById("orders").innerHTML="Server data error";
-    return;
+    try{
+        const res = await fetch(window.location.origin + "/admin/orders");
+        const orders = await res.json();
+
+        const div = document.getElementById("orders");
+        div.innerHTML = "";
+
+        if(!Array.isArray(orders)){
+            div.innerHTML = "Server error loading orders";
+            return;
+        }
+
+        orders.forEach(order=>{
+
+            // hide completed orders from live screen
+            if(order.status === "Delivered") return;
+
+            const phone = order.phone || "—";
+            const address = order.address || "—";
+            const delivered = order.delivered_at ? formatDate(order.delivered_at) : "Not delivered yet";
+
+            div.innerHTML += `
+            <div class="card">
+            <b>Order #${order.id}</b><br>
+            Name: ${order.customer_name}<br>
+            Phone: ${phone}<br>
+            Address: ${address}<br>
+            Items: ${order.food_item}<br>
+            Total: ₹${order.total_price}<br>
+
+            Status: <b id="status-${order.id}">${order.status}</b><br>
+            Delivered Time: <b>${delivered}</b><br><br>
+
+            <button onclick="updateStatus(${order.id},'Accepted')">Accept</button>
+            <button onclick="updateStatus(${order.id},'Preparing')">Preparing</button>
+            <button onclick="updateStatus(${order.id},'Out for Delivery')">Out</button>
+            <button onclick="updateStatus(${order.id},'Delivered')">Delivered</button>
+            <button onclick="deleteOrder(${order.id})" style="background:black">Delete</button>
+            </div>
+            `;
+        });
+
+        if(div.innerHTML === ""){
+            div.innerHTML = "No active orders";
+        }
+
+    }catch(err){
+        document.getElementById("orders").innerHTML = "Cannot connect to server";
+        console.log(err);
+    }
 }
-
-    const div = document.getElementById("orders");
-    div.innerHTML="";
-
-    orders.forEach(order=>{
-
-
-const phone = order.phone || "—";
-const address = order.address || "—";
-const delivered = order.delivered_at ? formatDate(order.delivered_at) : "Not delivered yet";
-
-div.innerHTML += `
-<div class="card">
-<b>Order #${order.id}</b><br>
-Name: ${order.customer_name}<br>
-Phone: ${phone}<br>
-Address: ${address}<br>
-Items: ${order.food_item}<br>
-Total: ₹${order.total_price}<br>
-
-Status: <b id="status-${order.id}">${order.status}</b><br>
-Delivered Time: <b>${delivered}</b><br><br>
-
-<button onclick="updateStatus(${order.id},'Accepted')">Accept</button>
-<button onclick="updateStatus(${order.id},'Preparing')">Preparing</button>
-<button onclick="updateStatus(${order.id},'Out for Delivery')">Out</button>
-<button onclick="updateStatus(${order.id},'Delivered')">Delivered</button>
-</div>
-`;
-
-});
-
-}
-
-orders.forEach(order=>{
-    if(order.status === "Delivered") return;   // hides completed orders
-
-    div.innerHTML += `
-    ... existing card ...
-    `;
-});
 
 async function updateStatus(id,status){
-   await fetch(window.location.origin + `/admin/update-status/${id}/${status}`,{
+    await fetch(window.location.origin + `/admin/update-status/${id}/${status}`,{
         method:"POST"
     });
-    document.getElementById("status-"+id).innerText=status;
+
+    // reload immediately
+    loadOrders();
 }
 
 async function deleteOrder(id){
+    if(!confirm("Delete this order permanently?")) return;
 
+    await fetch(window.location.origin + `/admin/delete-order/${id}`,{
+        method:"DELETE"
+    });
 
-if(!confirm("Delete this order permanently?")) return;
-
-fetch(window.location.origin + `/admin/delete-order/${id}`,{
-    method:"DELETE"
-});
-
-// reload list
-loadOrders();
-
-
+    loadOrders();
 }
 
-
-// auto refresh every 5 seconds
+// auto refresh
 setInterval(loadOrders,5000);
 loadOrders();
+
 </script>
+
 
 </body>
 </html>
