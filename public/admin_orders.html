@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Orders</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px;}
+.card{
+background:white;
+padding:15px;
+margin:15px 0;
+border-radius:10px;
+box-shadow:0 0 10px #ccc;
+}
+button{
+padding:6px 10px;
+margin:3px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+background:#ff4d4d;
+color:white;
+}
+</style>
+</head>
+<body>
+
+<h2>📦 Live Orders</h2>
+<div id="orders">Loading...</div>
+
+<script>
+async function loadOrders(){
+    const res = await fetch("/admin/orders");
+    const orders = await res.json();
+
+    const div = document.getElementById("orders");
+    div.innerHTML="";
+
+    orders.forEach(order=>{
+        div.innerHTML+=`
+        <div class="card">
+        <b>Order #${order.id}</b><br>
+        Name: ${order.customer_name}<br>
+        Phone: ${order.phone}<br>
+        Address: ${order.address}<br>
+        Items: ${order.food_item}<br>
+        Total: ₹${order.total_price}<br>
+        Status: <b id="status-${order.id}">${order.status}</b><br><br>
+
+        <button onclick="updateStatus(${order.id},'Accepted')">Accept</button>
+        <button onclick="updateStatus(${order.id},'Preparing')">Preparing</button>
+        <button onclick="updateStatus(${order.id},'Out for Delivery')">Out</button>
+        <button onclick="updateStatus(${order.id},'Delivered')">Delivered</button>
+        </div>
+        `;
+    });
+}
+
+async function updateStatus(id,status){
+    await fetch(`/admin/update-status/${id}/${status}`,{
+        method:"POST"
+    });
+    document.getElementById("status-"+id).innerText=status;
+}
+
+// auto refresh every 5 seconds
+setInterval(loadOrders,5000);
+loadOrders();
+</script>
+
+</body>
+</html>

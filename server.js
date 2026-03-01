@@ -349,6 +349,55 @@ app.get('/admin/menu/toggle/:id', async (req,res)=>{
   res.redirect('/admin/menu');
 });
 
+// ---------------- ADMIN ORDERS ----------------
+
+// get all orders
+app.get("/admin/orders", async (req, res) => {
+    try{
+        const result = await pool.query(
+            "SELECT * FROM orders ORDER BY id DESC"
+        );
+        res.json(result.rows);
+    }catch(err){
+        console.log(err);
+        res.status(500).send("Error loading orders");
+    }
+});
+
+// update order status
+app.post("/admin/update-status/:id/:status", async (req, res) => {
+    try{
+        const { id, status } = req.params;
+
+        await pool.query(
+            "UPDATE orders SET status=$1 WHERE id=$2",
+            [status, id]
+        );
+
+        res.json({success:true});
+    }catch(err){
+        console.log(err);
+        res.status(500).send("Status update failed");
+    }
+});
+
+// customer tracking
+app.get("/track-order/:phone", async (req,res)=>{
+    try{
+        const phone=req.params.phone;
+
+        const result=await pool.query(
+            "SELECT * FROM orders WHERE phone=$1 ORDER BY id DESC LIMIT 1",
+            [phone]
+        );
+
+        res.json(result.rows[0]);
+    }catch(err){
+        console.log(err);
+        res.status(500).send("Tracking error");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 // 1️⃣ Start server immediately (VERY IMPORTANT for Render)
