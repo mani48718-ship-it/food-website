@@ -351,8 +351,22 @@ app.get('/track-order/:phone', async (req,res)=>{
 
 app.get("/menu", async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM menu ORDER BY id");
+
+        let category = req.query.category;
+
+        // if no category -> return empty
+        if(!category){
+            return res.json([]);
+        }
+
+        // make case-insensitive
+        const result = await pool.query(
+            "SELECT * FROM menu WHERE LOWER(category)=LOWER($1) AND is_available=true ORDER BY id",
+            [category]
+        );
+
         res.json(result.rows);
+
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Menu load failed" });
