@@ -37,7 +37,7 @@ function formatDate(time){
 
 
 async function loadOrders(){
-    const res = await fetch("/admin/orders");
+    const res = await fetch(window.location.origin + "/admin/orders");
     const orders = await res.json();
 
     const div = document.getElementById("orders");
@@ -75,7 +75,7 @@ orders.forEach(order=>{
 });
 
 async function updateStatus(id,status){
-    await fetch(`/admin/update-status/${id}/${status}`,{
+   await fetch(window.location.origin + `/admin/update-status/${id}/${status}`,{
         method:"POST"
     });
     document.getElementById("status-"+id).innerText=status;
@@ -86,7 +86,7 @@ async function deleteOrder(id){
 
 if(!confirm("Delete this order permanently?")) return;
 
-await fetch(`/admin/delete-order/${id}`,{
+fetch(window.location.origin + `/admin/delete-order/${id}`,{
     method:"DELETE"
 });
 
