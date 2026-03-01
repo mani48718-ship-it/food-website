@@ -181,11 +181,23 @@ if(data.found){
     "<b>Food:</b> "+data.food+
     "<br><b>Order Status:</b> "+message;
 
+    // ===== UPDATE DELIVERY LOCATION =====
+if(data.delivery_lat && data.delivery_lng){
+
+    const newPosition = [data.delivery_lat, data.delivery_lng];
+
+    marker.setLatLng(newPosition);
+    map.setView(newPosition, 15);
+}
 }else{
     result.innerHTML="No order found";
 }
 }
 
+
+
+// auto refresh every 5 seconds
+setInterval(track,5000);
 
 </script>
 
