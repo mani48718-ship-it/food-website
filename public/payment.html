@@ -53,6 +53,25 @@ localStorage.getItem("order_total");
 // place order
 async function placeOrder(method){
 
+// COD works immediately
+if(method === 'COD'){
+    return submitOrder('COD');
+}
+
+// UPI goes to UPI payment page
+if(method === 'UPI'){
+    window.location.href = "upi.html";
+    return;
+}
+
+// CARD (temporary)
+if(method === 'CARD'){
+    alert("Card payment coming soon");
+}
+}
+
+async function submitOrder(method){
+
 const name=localStorage.getItem("cust_name");
 const phone=localStorage.getItem("cust_phone");
 const address=localStorage.getItem("cust_address");
@@ -81,7 +100,7 @@ payment_method:method
 const data=await res.json();
 
 if(data.message){
-alert("✅ Order Placed Successfully!");
+alert("✅ Order Placed!");
 localStorage.removeItem("cart");
 localStorage.removeItem("order_total");
 window.location.href="track.html";

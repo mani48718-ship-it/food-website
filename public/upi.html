@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>UPI Payment</title>
+<style>
+body{
+font-family:Arial;
+text-align:center;
+background:#f2f2f2;
+}
+.box{
+background:white;
+width:350px;
+margin:80px auto;
+padding:25px;
+border-radius:12px;
+}
+button{
+padding:12px 20px;
+background:#28a745;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Pay via UPI</h2>
+<h3>Amount: ₹<span id="amt"></span></h3>
+
+<p>UPI ID:</p>
+<h3 id="upiid">8428482950-2@ybl</h3>
+
+<br>
+
+<a id="paylink">
+<button>Pay Now (Open UPI App)</button>
+</a>
+
+<br><br>
+
+<p>After successful payment click below</p>
+<button onclick="paid()">I Have Paid</button>
+</div>
+
+<script>
+
+const total = localStorage.getItem("order_total");
+document.getElementById("amt").innerText = total;
+
+// YOUR UPI ID
+const upi = "manikanta@ybl";   // CHANGE THIS
+
+// create UPI payment URL
+const url = `upi://pay?pa=${upi}&pn=SMK%20Restaurant&am=${total}&cu=INR`;
+
+// attach to button
+document.getElementById("paylink").href = url;
+
+
+// after payment
+async function paid(){
+
+const name=localStorage.getItem("cust_name");
+const phone=localStorage.getItem("cust_phone");
+const address=localStorage.getItem("cust_address");
+const cart=JSON.parse(localStorage.getItem("cart"));
+
+let itemsText="";
+for(let item in cart){
+itemsText+=item+" x"+cart[item].qty+", ";
+}
+
+await fetch('/place-order',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+customer_name:name,
+phone:phone,
+address:address,
+food_item:itemsText,
+quantity:Object.keys(cart).length,
+total_price:total,
+payment_method:"UPI"
+})
+});
+
+localStorage.removeItem("cart");
+localStorage.removeItem("order_total");
+alert("Order placed ✔");
+window.location.href="track.html";
+}
+
+</script>
+
+</body>
+</html>
