@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Select Payment</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f2f2f2;
+    text-align:center;
+}
+
+.box{
+    background:white;
+    width:350px;
+    margin:90px auto;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+button{
+    width:250px;
+    padding:12px;
+    margin:12px;
+    font-size:16px;
+    border:none;
+    border-radius:6px;
+    background:#ff4d4d;
+    color:white;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Choose Payment Method</h2>
+<h3>Total: ₹<span id="total"></span></h3>
+
+<button onclick="placeOrder('COD')">Cash on Delivery</button>
+<button onclick="placeOrder('UPI')">UPI Payment</button>
+<button onclick="placeOrder('CARD')">Debit / Credit Card</button>
+</div>
+
+<script>
+
+// show total
+document.getElementById("total").innerText =
+localStorage.getItem("order_total");
+
+// place order
+async function placeOrder(method){
+
+const name=localStorage.getItem("cust_name");
+const phone=localStorage.getItem("cust_phone");
+const address=localStorage.getItem("cust_address");
+const cart=JSON.parse(localStorage.getItem("cart"));
+const total=localStorage.getItem("order_total");
+
+let itemsText="";
+for(let item in cart){
+itemsText+=item+" x"+cart[item].qty+", ";
+}
+
+const res=await fetch('/place-order',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+customer_name:name,
+phone:phone,
+address:address,
+food_item:itemsText,
+quantity:Object.keys(cart).length,
+total_price:total,
+payment_method:method
+})
+});
+
+const data=await res.json();
+
+if(data.message){
+alert("✅ Order Placed Successfully!");
+localStorage.removeItem("cart");
+localStorage.removeItem("order_total");
+window.location.href="track.html";
+}else{
+alert("Order failed");
+}
+}
+
+</script>
+
+</body>
+</html>

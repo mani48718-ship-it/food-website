@@ -289,56 +289,29 @@ closeProfile();
 }
 
 /* CONFIRM ORDER */
-async function confirmOrder(){
+/* CONFIRM ORDER (GO TO PAYMENT PAGE) */
+function confirmOrder(){
 
-if(total===0){
-alert("Please add items first");
-return;
-}
+    if(total===0){
+        alert("Please add items first");
+        return;
+    }
 
-const name=localStorage.getItem("cust_name");
-const phone=localStorage.getItem("cust_phone");
-const address=localStorage.getItem("cust_address");
+    const name=localStorage.getItem("cust_name");
+    const phone=localStorage.getItem("cust_phone");
+    const address=localStorage.getItem("cust_address");
 
-if(!name||!phone||!address){
-alert("Fill profile first 👤");
-openProfile();
-return;
-}
+    if(!name || !phone || !address){
+        alert("Fill profile first 👤");
+        openProfile();
+        return;
+    }
 
-let itemsText="";
-for(let item in cart){
-itemsText+=item+" x"+cart[item].qty+", ";
-}
+    // save total for payment page
+    localStorage.setItem("order_total", total);
 
-try{
-const res=await fetch(`/place-order`,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-customer_name:name,
-phone:phone,
-address:address,
-food_item:itemsText,
-quantity:Object.keys(cart).length,
-total_price:total
-})
-});
-
-const data=await res.json();
-
-if(data.message){
-alert("✅ Order placed!");
-localStorage.removeItem("cart");
-cart={};
-updateCart();
-window.location.href="track.html";
-}else{
-alert("Order failed");
-}
-}catch{
-alert("Server not reachable ❌");
-}
+    // go to payment selection
+    window.location.href = "payment.html";
 }
 
 /* LOAD */
