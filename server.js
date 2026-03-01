@@ -366,11 +366,16 @@ app.get("/admin/orders", async (req, res) => {
 
 // update order status
 app.post("/admin/update-status/:id/:status", async (req, res) => {
-    try{
-        const { id, status } = req.params;
+    try {
+        const id = req.params.id;
 
-        // if delivered, store delivery date
-        if(status === "Delivered"){
+        // Decode URL encoded text
+        let status = decodeURIComponent(req.params.status).trim();
+
+        console.log("Updating Order:", id, status);
+
+        // Save delivery date when delivered
+        if (status.toLowerCase() === "delivered") {
             await pool.query(
                 "UPDATE orders SET status=$1, delivered_at=NOW() WHERE id=$2",
                 [status, id]
@@ -382,10 +387,11 @@ app.post("/admin/update-status/:id/:status", async (req, res) => {
             );
         }
 
-        res.json({success:true});
-    }catch(err){
-        console.log(err);
-        res.status(500).send("Status update error");
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Status update failed");
     }
 });
 
