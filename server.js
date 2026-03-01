@@ -118,22 +118,33 @@ app.get('/logout',(req,res)=>{
    PLACE ORDER
 ===================== */
 
-app.post('/place-order', async (req,res)=>{
-  try{
-    const { customer_name, phone, address, food_item, quantity, total_price } = req.body;
+app.post('/place-order', async (req, res) => {
 
-    await pool.query(
-      `INSERT INTO orders 
-       (customer_name, phone, address, food_item, quantity, total_price)
-       VALUES ($1,$2,$3,$4,$5,$6)`,
-      [customer_name, phone, address, food_item, quantity, total_price]
-    );
+const {
+customer_name,
+phone,
+address,
+food_item,
+quantity,
+total_price,
+payment_method
+} = req.body;
 
-    res.json({message:"Order placed successfully"});
-  }catch(err){
-    console.log(err);
-    res.status(500).json({error:"Order failed"});
-  }
+try {
+
+await pool.query(
+`INSERT INTO orders
+(customer_name, phone, address, food_item, quantity, total_price, status)
+VALUES ($1,$2,$3,$4,$5,$6,'PENDING')`,
+[customer_name, phone, address, food_item, quantity, total_price]
+);
+
+res.json({message:"Order received"});
+
+} catch(err){
+console.log(err);
+res.status(500).json({error:"Order failed"});
+}
 });
 
 /* =====================
@@ -192,9 +203,10 @@ font-weight:bold;
       <td>₹${order.total_price}</td>
       <td>${order.status}</td>
       <td>
-  <a href="/ready/${order.id}">Ready</a> |
-  <a href="/out/${order.id}">Out</a> |
-  <a href="/delivered/${order.id}">Delivered</a>
+ ${order.status === 'PENDING' ? `<a href="/confirm/${order.id}">Confirm Payment</a>` : ''}
+${order.status === 'CONFIRMED' ? `<a href="/ready/${order.id}">Ready</a>` : ''}
+${order.status === 'Ready' ? `<a href="/out/${order.id}">Out</a>` : ''}
+${order.status === 'Out for Delivery' ? `<a href="/delivered/${order.id}">Delivered</a>` : ''}
   </td>
     </tr>
     `;
@@ -305,6 +317,15 @@ res.redirect('/admin/menu');
 /* =====================
    STATUS UPDATE
 ===================== */
+
+// confirm payment (ADMIN verifies UPI received)
+app.get('/confirm/:id', async (req,res)=>{
+  await pool.query(
+    "UPDATE orders SET status='CONFIRMED' WHERE id=$1",
+    [req.params.id]
+  );
+  res.redirect('/admin');
+});
 
 app.get('/ready/:id', async (req,res)=>{
   await pool.query("UPDATE orders SET status='Ready' WHERE id=$1",[req.params.id]);
