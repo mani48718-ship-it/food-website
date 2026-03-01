@@ -125,11 +125,40 @@ const data=await res.json();
 const result=document.getElementById("result");
 
 if(data.found){
-result.innerHTML=
-"<b>Food:</b> "+data.food+
-"<br><b>Status:</b> "+data.status;
+
+    let message = "";
+
+    // Payment not verified yet
+    if(data.status === "PENDING"){
+        message = "🟡 Waiting for restaurant to verify your payment";
+    }
+
+    // Restaurant accepted payment
+    else if(data.status === "CONFIRMED"){
+        message = "🟢 Payment confirmed! Restaurant is preparing your food";
+    }
+
+    // Cooking done
+    else if(data.status === "Ready"){
+        message = "👨‍🍳 Your order is ready";
+    }
+
+    // Delivery started
+    else if(data.status === "Out for Delivery"){
+        message = "🚴 Order is on the way";
+    }
+
+    // Completed
+    else if(data.status === "Delivered"){
+        message = "✅ Order delivered. Enjoy your meal!";
+    }
+
+    result.innerHTML =
+    "<b>Food:</b> "+data.food+
+    "<br><b>Order Status:</b> "+message;
+
 }else{
-result.innerHTML="No order found";
+    result.innerHTML="No order found";
 }
 }
 

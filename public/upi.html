@@ -91,8 +91,8 @@ payment_method:"UPI"
 
 localStorage.removeItem("cart");
 localStorage.removeItem("order_total");
-alert("Order placed ✔");
-window.location.href="track.html";
+alert("Payment request sent to restaurant. Please wait for confirmation.");
+window.location.href="track.html?phone=" + localStorage.getItem("cust_phone");
 }
 
 </script>
