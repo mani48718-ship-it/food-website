@@ -365,7 +365,7 @@ app.get("/admin/orders", async (req, res) => {
 });
 
 // update order status
-aapp.post("/admin/update-status/:id/:status", async (req, res) => {
+app.post("/admin/update-status/:id/:status", async (req, res) => {
     try{
         const { id, status } = req.params;
 
