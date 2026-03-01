@@ -100,7 +100,7 @@ app.get('/login', (req,res)=>{
 app.post('/login',(req,res)=>{
   const {username,password} = req.body;
 
-  if(username==='admin' && password==='1234'){
+  if(username==='mani' && password==='2000'){
     req.session.loggedIn = true;
     res.redirect('/admin');
   } else {
@@ -170,6 +170,7 @@ app.get('/admin', async (req,res)=>{
   <html>
   <body>
   <h1>Restaurant Orders</h1>
+  <audio id="bellSound" src="/sounds/bell.mp3"></audio>
 
   <br>
 <a href="/admin/menu" style="
@@ -219,15 +220,45 @@ ${order.status === 'Out for Delivery' ? `<a href="/delivered/${order.id}">Delive
     `;
   });
 
-  html += `
-  </table>
+ html += `
+</table>
 
-  <br>
-  <a href="/logout">Logout</a>
+<br>
+<a href="/logout">Logout</a>
 
-  </body>
-  </html>
-  `;
+<script>
+
+let lastOrderId = null;
+
+async function checkNewOrders(){
+
+    const res = await fetch('/admin/orders');
+    const orders = await res.json();
+
+    if(orders.length === 0) return;
+
+    const newest = orders[0].id;
+
+    if(lastOrderId === null){
+        lastOrderId = newest;
+        return;
+    }
+
+    if(newest > lastOrderId){
+        document.getElementById("notifySound").play();
+        location.reload();
+    }
+
+    lastOrderId = newest;
+}
+
+setInterval(checkNewOrders,5000);
+
+</script>
+
+</body>
+</html>
+`;
 
   res.send(html);
 });
