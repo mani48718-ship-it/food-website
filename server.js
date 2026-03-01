@@ -363,11 +363,13 @@ app.get('/track-order/:phone', async (req,res)=>{
   );
 
   if(result.rows.length>0){
-    res.json({
-      found:true,
-      food: result.rows[0].food_item,
-      status: result.rows[0].status
-    });
+   res.json({
+  found:true,
+  food: result.rows[0].food_item,
+  status: result.rows[0].status,
+  delivery_lat: result.rows[0].delivery_lat,
+  delivery_lng: result.rows[0].delivery_lng
+});
   } else {
     res.json({found:false});
   }
