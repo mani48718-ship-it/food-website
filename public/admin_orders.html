@@ -30,6 +30,20 @@ color:white;
 
 <script>
 
+async function checkLogin(){
+const res = await fetch("/admin/check");
+const data = await res.json();
+
+
+if(!data.loggedIn){
+    window.location.href = "/login";
+    return false;
+}
+return true;
+
+
+}
+
 function formatDate(time){
     if(!time) return "Not delivered yet";
     const d = new Date(time);

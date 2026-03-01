@@ -358,6 +358,15 @@ app.get('/admin/menu/toggle/:id', requireAdmin, async (req,res)=>{
   res.redirect('/admin/menu');
 });
 
+
+app.get("/admin/check", (req,res)=>{
+    if(req.session && req.session.loggedIn){
+        res.json({loggedIn:true});
+    }else{
+        res.json({loggedIn:false});
+    }
+});
+
 // ---------------- ADMIN ORDERS ----------------
 
 // get all orders
