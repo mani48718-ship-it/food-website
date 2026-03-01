@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delivery Tracker</title>
+
+<style>
+body{
+font-family:Arial;
+text-align:center;
+margin-top:60px;
+background:#f5f5f5;
+}
+
+.box{
+background:white;
+width:350px;
+margin:auto;
+padding:25px;
+border-radius:12px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+input{
+padding:10px;
+width:80%;
+margin:10px;
+font-size:16px;
+}
+
+button{
+padding:14px 22px;
+font-size:18px;
+background:#28a745;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>🚴 Delivery Location Sharing</h2>
+
+<input id="orderId" placeholder="Enter Order ID">
+<br>
+
+<button onclick="start()">Start Sharing Location</button>
+
+<p id="status"></p>
+</div>
+
+<script>
+
+function start(){
+
+const id=document.getElementById("orderId").value;
+
+if(!id){
+alert("Enter order ID");
+return;
+}
+
+navigator.geolocation.watchPosition(async(pos)=>{
+
+const lat=pos.coords.latitude;
+const lng=pos.coords.longitude;
+
+document.getElementById("status").innerText =
+"Sending location: "+lat.toFixed(5)+", "+lng.toFixed(5);
+
+await fetch("/update-location",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({orderId:id,lat:lat,lng:lng})
+});
+
+},{enableHighAccuracy:true});
+
+alert("Location sharing started. Keep this page open.");
+
+}
+
+</script>
+
+</body>
+</html>
