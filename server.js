@@ -231,27 +231,49 @@ let html = `
   <body>
   <h1>Menu Management</h1>
 
-  <h2>Add New Item</h2>
-  <form method="POST" action="/admin/menu/add">
-    <input name="item_name" placeholder="Food name" required>
-    <input name="price" type="number" placeholder="Price" required>
-    <button type="submit">Add Item</button>
-  </form>
+ <h2>Add New Item</h2>
+<form method="POST" action="/admin/menu/add">
+  <input name="item_name" placeholder="Food name" required>
+  <input name="price" type="number" placeholder="Price" required>
+
+  <select name="category" required>
+    <option value="">Select Category</option>
+    <option value="Tiffin">Tiffin</option>
+    <option value="Biryani">Biryani</option>
+    <option value="Chinese">Chinese</option>
+    <option value="Tandoor">Tandoor</option>
+    <option value="Fast Food">Fast Food</option>
+    <option value="Meals">Meals</option>
+  </select>
+
+  <button type="submit">Add Item</button>
+</form>
 
 <br><br>
 
   <table border="1" cellpadding="10">
   <tr>
     <th>ID</th>
-    <th>Name</th>
-    <th>Price</th>
-    <th>Available</th>
-    <th>Action</th>
+   <th>Name</th>
+   <th>Category</th>
+   <th>Price</th>
+   <th>Available</th>
+   <th>Action</th>
   </tr>
   `;
 
 result.rows.forEach(item=>{
-html += `     <tr>       <td>${item.id}</td>       <td>${item.item_name}</td>       <td>₹${item.price}</td>       <td>${item.is_available}</td>       <td>         <a href="/admin/menu/toggle/${item.id}">Hide/Show</a> |         <a href="/admin/menu/delete/${item.id}">Delete</a>       </td>     </tr>
+html += `     <tr>       
+<td>${item.id}</td>     
+ <td>${item.item_name}</td>
+<td>${item.category}</td>
+<td>₹${item.price}</td>
+<td>${item.is_available}</td>
+       <td>        
+        <a href="/admin/menu/toggle/${item.id}">Hide/Show</a> |       
+          <a href="/admin/menu/delete/${item.id}">Delete</a>      
+           </td>  
+              </tr>
     `;
 });
 
@@ -270,11 +292,11 @@ res.send(html);
 });
 
 app.post('/admin/menu/add', requireAdmin, async (req,res)=>{
-const { item_name, price } = req.body;
+const { item_name, price, category } = req.body;
 
 await pool.query(
-"INSERT INTO menu (item_name, price) VALUES ($1,$2)",
-[item_name, price]
+"INSERT INTO menu (item_name, price, category) VALUES ($1,$2,$3)",
+[item_name, price, category]
 );
 
 res.redirect('/admin/menu');
