@@ -365,19 +365,27 @@ app.get("/admin/orders", async (req, res) => {
 });
 
 // update order status
-app.post("/admin/update-status/:id/:status", async (req, res) => {
+aapp.post("/admin/update-status/:id/:status", async (req, res) => {
     try{
         const { id, status } = req.params;
 
-        await pool.query(
-            "UPDATE orders SET status=$1 WHERE id=$2",
-            [status, id]
-        );
+        // if delivered, store delivery date
+        if(status === "Delivered"){
+            await pool.query(
+                "UPDATE orders SET status=$1, delivered_at=NOW() WHERE id=$2",
+                [status, id]
+            );
+        } else {
+            await pool.query(
+                "UPDATE orders SET status=$1 WHERE id=$2",
+                [status, id]
+            );
+        }
 
         res.json({success:true});
     }catch(err){
         console.log(err);
-        res.status(500).send("Status update failed");
+        res.status(500).send("Status update error");
     }
 });
 
