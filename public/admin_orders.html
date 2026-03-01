@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <title>Admin Orders</title>
+
 <style>
 body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px;}
 .card{
@@ -21,63 +23,49 @@ background:#ff4d4d;
 color:white;
 }
 </style>
+
 </head>
+
 <body>
 
 <h2>📦 Live Orders</h2>
 <div id="orders">Loading...</div>
 
-
 <script>
-
-async function checkLogin(){
-const res = await fetch("/admin/check");
-const data = await res.json();
-
-
-if(!data.loggedIn){
-    window.location.href = "/login";
-    return false;
-}
-return true;
-
-
-}
 
 function formatDate(time){
     if(!time) return "Not delivered yet";
-    const d = new Date(time);
-    return d.toLocaleString();
+    return new Date(time).toLocaleString();
 }
 
 async function loadOrders(){
+
     try{
-        const res = await fetch(window.location.origin + "/admin/orders");
-        const orders = await res.json();
+        const res = await fetch("/admin/orders",{credentials:"include"});
 
-        const div = document.getElementById("orders");
-        div.innerHTML = "";
-
-        if(!Array.isArray(orders)){
-            div.innerHTML = "Server error loading orders";
+        if(res.status===401 || res.redirected){
+            window.location.href="/login";
             return;
         }
 
+        const orders = await res.json();
+
+        const div=document.getElementById("orders");
+        div.innerHTML="";
+
         orders.forEach(order=>{
 
-            // hide completed orders from live screen
-            if(order.status === "Delivered") return;
+            // hide delivered orders
+            if(order.status==="Delivered") return;
 
-            const phone = order.phone || "—";
-            const address = order.address || "—";
-            const delivered = order.delivered_at ? formatDate(order.delivered_at) : "Not delivered yet";
+            const delivered = formatDate(order.delivered_at);
 
             div.innerHTML += `
             <div class="card">
             <b>Order #${order.id}</b><br>
             Name: ${order.customer_name}<br>
-            Phone: ${phone}<br>
-            Address: ${address}<br>
+            Phone: ${order.phone || "-"}<br>
+            Address: ${order.address || "-"}<br>
             Items: ${order.food_item}<br>
             Total: ₹${order.total_price}<br>
 
@@ -89,45 +77,38 @@ async function loadOrders(){
             <button onclick="updateStatus(${order.id},'Out for Delivery')">Out</button>
             <button onclick="updateStatus(${order.id},'Delivered')">Delivered</button>
             <button onclick="deleteOrder(${order.id})" style="background:black">Delete</button>
-            </div>
-            `;
+            </div>`;
         });
 
-        if(div.innerHTML === ""){
-            div.innerHTML = "No active orders";
-        }
-
     }catch(err){
-        document.getElementById("orders").innerHTML = "Cannot connect to server";
-        console.log(err);
+        document.getElementById("orders").innerHTML="⚠ Server sleeping... refresh in 10 seconds";
     }
 }
 
 async function updateStatus(id,status){
-    await fetch(window.location.origin + `/admin/update-status/${id}/${status}`,{
-        method:"POST"
+    await fetch(`/admin/update-status/${id}/${status}`,{
+        method:"POST",
+        credentials:"include"
     });
-
-    // reload immediately
     loadOrders();
 }
 
 async function deleteOrder(id){
+
     if(!confirm("Delete this order permanently?")) return;
 
-    await fetch(window.location.origin + `/admin/delete-order/${id}`,{
-        method:"DELETE"
+    await fetch(`/admin/delete-order/${id}`,{
+        method:"DELETE",
+        credentials:"include"
     });
 
     loadOrders();
 }
 
-// auto refresh
 setInterval(loadOrders,5000);
 loadOrders();
 
 </script>
-
 
 </body>
 </html>
