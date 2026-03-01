@@ -56,6 +56,16 @@ async function loadOrders(){
         const div=document.getElementById("orders");
         div.innerHTML="";
 
+        if(orders.length > 0){
+    const newest = orders[0].id;
+
+    if(lastOrderId !== 0 && newest > lastOrderId){
+        bell.play();   // 🔔 NEW ORDER SOUND
+    }
+
+    lastOrderId = newest;
+}
+
         orders.forEach(order=>{
 
             // hide delivered orders

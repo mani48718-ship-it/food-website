@@ -63,10 +63,10 @@ window.onload = function(){
   const phone = localStorage.getItem("cust_phone");
   const address = localStorage.getItem("cust_address");
 
-  // If customer already visited → go menu directly
-  if(name && phone && address){
-      window.location.href="/menu.html";
-  }
+ // If customer already visited → go categories page
+if(name && phone && address){
+    window.location.href="/categories.html";
+}
 
 };
 
@@ -86,8 +86,9 @@ function startOrder(){
   localStorage.setItem("cust_phone",phone);
   localStorage.setItem("cust_address",address);
 
-  window.location="/menu.html";
+  window.location="/categories.html";
 }
+
 </script>
 
 </body>
