@@ -60,11 +60,19 @@ async function loadOrders(){
         <button onclick="updateStatus(${order.id},'Preparing')">Preparing</button>
         <button onclick="updateStatus(${order.id},'Out for Delivery')">Out</button>
         <button onclick="updateStatus(${order.id},'Delivered')">Delivered</button>
+        <button onclick="deleteOrder(${order.id})" style="background:#000;">Delete</button>
         </div>
         `;
     });
 }
 
+orders.forEach(order=>{
+    if(order.status === "Delivered") return;   // hides completed orders
+
+    div.innerHTML += `
+    ... existing card ...
+    `;
+});
 
 async function updateStatus(id,status){
     await fetch(`/admin/update-status/${id}/${status}`,{
@@ -72,6 +80,22 @@ async function updateStatus(id,status){
     });
     document.getElementById("status-"+id).innerText=status;
 }
+
+async function deleteOrder(id){
+
+
+if(!confirm("Delete this order permanently?")) return;
+
+await fetch(`/admin/delete-order/${id}`,{
+    method:"DELETE"
+});
+
+// reload list
+loadOrders();
+
+
+}
+
 
 // auto refresh every 5 seconds
 setInterval(loadOrders,5000);

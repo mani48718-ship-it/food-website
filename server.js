@@ -412,6 +412,28 @@ app.get("/track-order/:phone", async (req,res)=>{
     }
 });
 
+setInterval(async ()=>{
+  await pool.query(
+    "DELETE FROM orders WHERE delivered_at < NOW() - INTERVAL '30 days'"
+  );
+}, 86400000);
+
+// delete order permanently
+app.delete("/admin/delete-order/:id", async (req, res) => {
+    try{
+        const id = req.params.id;
+
+        await pool.query(
+            "DELETE FROM orders WHERE id=$1",
+            [id]
+        );
+
+        res.json({success:true});
+    }catch(err){
+        console.log(err);
+        res.status(500).send("Delete failed");
+    }
+});
 const PORT = process.env.PORT || 3000;
 
 // 1️⃣ Start server immediately (VERY IMPORTANT for Render)

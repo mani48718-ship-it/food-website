@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Order History</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;padding:20px;}
+.card{background:white;margin:12px;padding:12px;border-radius:8px;}
+</style>
+</head>
+<body>
+
+<h2>📜 Delivered Orders History</h2>
+<div id="history">Loading...</div>
+
+<script>
+function formatDate(t){
+ if(!t) return "";
+ return new Date(t).toLocaleString();
+}
+
+async function loadHistory(){
+ const res = await fetch("/admin/orders");
+ const orders = await res.json();
+
+ const div=document.getElementById("history");
+ div.innerHTML="";
+
+ orders
+   .filter(o=>o.status==="Delivered")
+   .forEach(o=>{
+     div.innerHTML+=`
+     <div class="card">
+     <b>Order #${o.id}</b><br>
+     ${o.customer_name}<br>
+     ₹${o.total_price}<br>
+     Delivered: ${formatDate(o.delivered_at)}
+     </div>`;
+   });
+}
+
+loadHistory();
+</script>
+
+</body>
+</html>
