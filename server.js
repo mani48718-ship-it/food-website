@@ -388,21 +388,28 @@ app.get('/delivered/:id', async (req,res)=>{
 ===================== */
 
 app.get('/track-order/:phone', async (req,res)=>{
-  const result = await pool.query(
-    "SELECT * FROM orders WHERE phone=$1 ORDER BY id DESC LIMIT 1",
-    [req.params.phone]
-  );
+  try{
 
-  if(result.rows.length>0){
-   res.json({
-  found:true,
-  food: result.rows[0].food_item,
-  status: result.rows[0].status,
-  delivery_lat: result.rows[0].delivery_lat,
-  delivery_lng: result.rows[0].delivery_lng
-});
-  } else {
-    res.json({found:false});
+    const phone = req.params.phone;
+
+    const result = await pool.query(
+      "SELECT * FROM orders WHERE phone=$1 ORDER BY id DESC",
+      [phone]
+    );
+
+    if(result.rows.length===0){
+      return res.json({found:false});
+    }
+
+    res.json({
+      found:true,
+      orders: result.rows,
+      latest: result.rows[0]   // newest order for live map
+    });
+
+  }catch(err){
+    console.log(err);
+    res.status(500).send("Tracking error");
   }
 });
 

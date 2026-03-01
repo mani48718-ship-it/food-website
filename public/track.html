@@ -150,52 +150,61 @@ const result=document.getElementById("result");
 
 if(data.found){
 
-    let message = "";
+    let html = "<h3>Your Orders</h3>";
 
-    // Payment not verified yet
-    if(data.status === "PENDING"){
-        message = "🟡 Waiting for restaurant to verify your payment";
+    data.orders.forEach(order=>{
+
+        let message="";
+
+        if(order.status==="PENDING")
+            message="🟡 Waiting for payment verification";
+
+        else if(order.status==="CONFIRMED")
+            message="🟢 Preparing your food";
+
+        else if(order.status==="Ready")
+            message="👨‍🍳 Order ready";
+
+        else if(order.status==="Out for Delivery")
+            message="🚴 Out for delivery";
+
+        else if(order.status==="Delivered")
+            message="✅ Delivered";
+
+        html += `
+        <div style="border:1px solid #ddd;padding:12px;margin:10px;border-radius:10px;background:white;">
+        <b>Order #${order.id}</b><br>
+        ${order.food_item}<br>
+        Status: ${message}
+        </div>
+        `;
+    });
+
+    result.innerHTML = html;
+
+    // ===== MOVE MAP USING LATEST ORDER =====
+    if(data.latest && data.latest.delivery_lat && data.latest.delivery_lng){
+
+        const newPosition = [
+            data.latest.delivery_lat,
+            data.latest.delivery_lng
+        ];
+
+        marker.setLatLng(newPosition);
+        map.setView(newPosition, 15);
     }
 
-    // Restaurant accepted payment
-    else if(data.status === "CONFIRMED"){
-        message = "🟢 Payment confirmed! Restaurant is preparing your food";
-    }
-
-    // Cooking done
-    else if(data.status === "Ready"){
-        message = "👨‍🍳 Your order is ready";
-    }
-
-    // Delivery started
-    else if(data.status === "Out for Delivery"){
-        message = "🚴 Order is on the way";
-    }
-
-    // Completed
-    else if(data.status === "Delivered"){
-        message = "✅ Order delivered. Enjoy your meal!";
-    }
-
-    result.innerHTML =
-    "<b>Food:</b> "+data.food+
-    "<br><b>Order Status:</b> "+message;
-
-    // ===== UPDATE DELIVERY LOCATION =====
-if(data.delivery_lat && data.delivery_lng){
-
-    const newPosition = [data.delivery_lat, data.delivery_lng];
-
-    marker.setLatLng(newPosition);
-    map.setView(newPosition, 15);
-}
 }else{
-    result.innerHTML="No order found";
+    result.innerHTML="No orders found";
 }
+
 }
 
 // auto refresh every 5 seconds
-setInterval(track,5000);
+if(!window.trackingStarted){
+    window.trackingStarted = true;
+    setInterval(track,5000);
+}
 
 </script>
 
