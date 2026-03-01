@@ -27,7 +27,15 @@ color:white;
 <h2>📦 Live Orders</h2>
 <div id="orders">Loading...</div>
 
-<script>
+ <script>
+
+function formatDate(time){
+    if(!time) return "Not delivered yet";
+    const d = new Date(time);
+    return d.toLocaleString();
+}
+
+
 async function loadOrders(){
     const res = await fetch("/admin/orders");
     const orders = await res.json();
@@ -44,7 +52,9 @@ async function loadOrders(){
         Address: ${order.address}<br>
         Items: ${order.food_item}<br>
         Total: ₹${order.total_price}<br>
-        Status: <b id="status-${order.id}">${order.status}</b><br><br>
+
+        Status: <b id="status-${order.id}">${order.status}</b><br>
+        Delivered Time: <b>${formatDate(order.delivered_at)}</b><br><br>
 
         <button onclick="updateStatus(${order.id},'Accepted')">Accept</button>
         <button onclick="updateStatus(${order.id},'Preparing')">Preparing</button>
@@ -54,6 +64,7 @@ async function loadOrders(){
         `;
     });
 }
+
 
 async function updateStatus(id,status){
     await fetch(`/admin/update-status/${id}/${status}`,{
