@@ -132,15 +132,33 @@ function initMap(){
 
 initMap();
 
+// autofill phone if already tracked
+window.onload = function(){
+    const saved = localStorage.getItem("track_phone");
+    if(saved){
+        document.getElementById("phone").value = saved;
+        track();
+    }
+};
+
 // ===== TRACK FUNCTION =====
 
 async function track(){
 
-const phone=document.getElementById("phone").value;
+let phone = document.getElementById("phone").value;
 
+// if first time user enters
+if(phone){
+    localStorage.setItem("track_phone", phone);
+}
+// if auto refresh
+else{
+    phone = localStorage.getItem("track_phone");
+}
+
+// still empty → do nothing
 if(!phone){
-alert("Enter phone number");
-return;
+    return;
 }
 
 const res=await fetch("/track-order/"+phone);
