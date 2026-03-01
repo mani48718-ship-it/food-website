@@ -521,6 +521,33 @@ app.get('/admin_orders.html', requireAdmin, (req,res)=>{
     res.sendFile(path.join(__dirname,'public','admin_orders.html'));
 });
 
+// ===== DELIVERY LIVE LOCATION UPDATE =====
+app.post("/update-location", async (req,res)=>{
+try{
+
+console.log("Location API hit");
+
+const orderId = req.body.orderId;
+const lat = req.body.lat;
+const lng = req.body.lng;
+
+if(!orderId || !lat || !lng){
+return res.status(400).json({error:"Missing data"});
+}
+
+await pool.query(
+"UPDATE orders SET delivery_lat=$1, delivery_lng=$2 WHERE id=$3",
+[lat, lng, orderId]
+);
+
+res.json({success:true});
+
+}catch(err){
+console.log("Location error:",err);
+res.status(500).send("DB error");
+}
+});
+
 const PORT = process.env.PORT || 3000;
 
 // 1️⃣ Start server immediately (VERY IMPORTANT for Render)
