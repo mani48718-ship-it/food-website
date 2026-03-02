@@ -48,6 +48,34 @@ text-decoration:none;
 font-weight:bold;
 }
 
+.menuIcon{
+font-size:28px;
+cursor:pointer;
+padding:6px 10px;
+}
+
+.dropdown{
+display:none;
+position:absolute;
+right:15px;
+top:65px;
+background:white;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+overflow:hidden;
+z-index:9999;
+}
+
+.dropdown a{
+display:block;
+padding:12px 18px;
+text-decoration:none;
+color:black;
+}
+
+.dropdown a:hover{
+background:#f2f2f2;
+}
 /* LAYOUT */
 .mainLayout{
 display:flex;
@@ -139,7 +167,13 @@ border:1px solid #ccc;
 <header class="topHeader">
 <div class="profileBtn" onclick="openProfile()">👤</div>
 <div class="centerHeader">🍔 SMK Restaurant</div>
-<a href="track.html" class="trackBtn">📦 Track Order</a>
+<!-- 3 dot menu button -->
+<div class="menuIcon" onclick="toggleMenu()">⋮</div>
+
+<div id="dropdownMenu" class="dropdown">
+    <a href="/track.html">📦 Track Order</a>
+    <a href="/orders.html">📜 My Orders</a>
+</div>
 </header>
 <div style="padding:10px 20px;">
 <a href="/categories.html" style="
@@ -320,6 +354,17 @@ loadMenu();
 updateCart();
 };
 
+function toggleMenu(){
+const menu=document.getElementById("dropdownMenu");
+menu.style.display = menu.style.display==="block" ? "none" : "block";
+}
+
+// close if click outside
+document.addEventListener("click", function(e){
+if(!e.target.closest(".menuIcon")){
+document.getElementById("dropdownMenu").style.display="none";
+}
+});
 </script>
 </body>
 </html>
