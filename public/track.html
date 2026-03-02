@@ -170,35 +170,44 @@ if(data.found){
 
     let html = "<h3>Your Orders</h3>";
 
-    data.orders.forEach(order=>{
+    if(data.found){
 
-        let message="";
+    const order = data.latest;
 
-        if(order.status==="PENDING")
-            message="🟡 Waiting for payment verification";
+    let message="";
 
-        else if(order.status==="CONFIRMED")
-            message="🟢 Preparing your food";
+    if(order.status==="PENDING")
+        message="🟡 Waiting for payment verification";
 
-        else if(order.status==="Ready")
-            message="👨‍🍳 Order ready";
+    else if(order.status==="CONFIRMED")
+        message="🟢 Preparing your food";
 
-        else if(order.status==="Out for Delivery")
-            message="🚴 Out for delivery";
+    else if(order.status==="Ready")
+        message="👨‍🍳 Order ready";
 
-        else if(order.status==="Delivered")
-            message="✅ Delivered";
+    else if(order.status==="Out for Delivery")
+        message="🚴 Out for delivery";
 
-        html += `
-        <div style="border:1px solid #ddd;padding:12px;margin:10px;border-radius:10px;background:white;">
-        <b>Order #${order.id}</b><br>
+    else if(order.status==="Delivered")
+        message="✅ Delivered";
+
+    result.innerHTML =
+    `<div style="border:1px solid #ddd;padding:15px;border-radius:10px;background:white;">
+        <b>Current Order #${order.id}</b><br>
         ${order.food_item}<br>
         Status: ${message}
-        </div>
-        `;
-    });
+    </div>`;
 
-    result.innerHTML = html;
+    // Move map
+    if(order.delivery_lat && order.delivery_lng){
+        const newPosition=[order.delivery_lat,order.delivery_lng];
+        marker.setLatLng(newPosition);
+        map.setView(newPosition,15);
+    }
+
+}else{
+    result.innerHTML="No active order";
+}
 
     // ===== MOVE MAP USING LATEST ORDER =====
     if(data.latest && data.latest.delivery_lat && data.latest.delivery_lng){
