@@ -123,14 +123,33 @@ color:black;
 background:#f2f2f2;
 }
 
+.topHeader{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 25px;
+background:#ff4d4d;
+color:white;
+}
+
+.backBtn{
+background:white;
+color:#ff4d4d;
+padding:8px 15px;
+text-decoration:none;
+border-radius:6px;
+font-weight:bold;
+}
+
     </style>
 </head>
 
 <body>
 
 <header class="topHeader">
-
-<div class="centerHeader">🍔 SMK Restaurant</div>
+<div class="logo">🍔 SMK Restaurant</div>
+<a href="/menu.html" class="backBtn">🍽 Back to Menu</a>
+</header>
 
 <!-- menu icon -->
 <div class="menuIcon" onclick="toggleMenu()">☰</div>
