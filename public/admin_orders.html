@@ -5,23 +5,110 @@
 <title>Admin Orders</title>
 
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px;}
-.card{
-background:white;
-padding:15px;
-margin:15px 0;
-border-radius:10px;
-box-shadow:0 0 10px #ccc;
+
+
+body{
+font-family:Segoe UI, Arial;
+background:#f4f6f9;
+margin:0;
+padding:20px;
 }
-button{
-padding:6px 10px;
-margin:3px;
-border:none;
-border-radius:5px;
-cursor:pointer;
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
 background:#ff4d4d;
 color:white;
+padding:15px 20px;
+border-radius:8px;
+margin-bottom:20px;
 }
+
+.header a{
+color:white;
+text-decoration:none;
+margin-left:15px;
+font-weight:bold;
+}
+
+/* ORDER CARD */
+
+.orderCard{
+background:white;
+padding:18px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.orderCard h3{
+margin-top:0;
+color:#333;
+}
+
+/* STATUS */
+
+.status{
+font-weight:bold;
+}
+
+.ready{
+color:#28a745;
+}
+
+.preparing{
+color:#ff9800;
+}
+
+.out{
+color:#007bff;
+}
+
+.delivered{
+color:#6c757d;
+}
+
+/* BUTTONS */
+
+button{
+border:none;
+padding:8px 12px;
+margin:5px 5px 0 0;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+}
+
+.accept{
+background:#28a745;
+color:white;
+}
+
+.preparingBtn{
+background:#ff9800;
+color:white;
+}
+
+.outBtn{
+background:#007bff;
+color:white;
+}
+
+.deliveredBtn{
+background:#6c757d;
+color:white;
+}
+
+.deleteBtn{
+background:black;
+color:white;
+}
+
+
+
 </style>
 
 </head>
@@ -74,7 +161,7 @@ async function loadOrders(){
             const delivered = formatDate(order.delivered_at);
 
             div.innerHTML += `
-            <div class="card">
+            <div class="ordercard">
             <b>Order #${order.id}</b><br>
             Name: ${order.customer_name}<br>
             Phone: ${order.phone || "-"}<br>
@@ -119,7 +206,7 @@ async function deleteOrder(id){
 }
 
 setInterval(loadOrders,5000);
-loadOrders();
+
 
 </script>
 
